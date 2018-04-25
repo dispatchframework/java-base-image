@@ -1,4 +1,5 @@
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.dispatchframework.javabaseimage</groupId>
     <artifactId>function-server</artifactId>
@@ -15,6 +16,10 @@
         <junit.jupiter.api.version>5.2.0-M1</junit.jupiter.api.version>
         <junit.jupiter.engine.version>5.2.0-M1</junit.jupiter.engine.version>
         <junit.platform.version>1.2.0-M1</junit.platform.version>
+
+		<mockito.version>2.18.3</mockito.version>
+
+		<spring.framework.version>5.0.5.RELEASE</spring.framework.version>
     </properties>
 
     <build>
@@ -39,11 +44,21 @@
     </build>
 
     <dependencies>
+    	<dependency>
+    		<groupId>javax.inject</groupId>
+    		<artifactId>javax.inject</artifactId>
+    		<version>1</version>
+    	</dependency>
         <dependency>
             <groupId>io.undertow</groupId>
             <artifactId>undertow-core</artifactId>
             <version>${undertow.version}</version>
         </dependency>
+        <dependency>
+			<groupId>io.undertow</groupId>
+			<artifactId>undertow-servlet</artifactId>
+			<version>${undertow.version}</version>
+		</dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
@@ -54,6 +69,42 @@
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.jupiter.api.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>org.junit.platform</groupId>
+        	<artifactId>junit-platform-launcher</artifactId>
+        	<version>${junit.platform.version}</version>
+        	<scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>org.junit.jupiter</groupId>
+        	<artifactId>junit-jupiter-engine</artifactId>
+        	<version>${junit.jupiter.engine.version}</version>
+        	<scope>test</scope>
+        </dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+        <dependency>
+        	<groupId>org.springframework</groupId>
+        	<artifactId>spring-core</artifactId>
+        	<version>${spring.framework.version}</version>
+        	<scope>provided</scope>
+        </dependency>
+        <dependency>
+        	<groupId>org.springframework</groupId>
+        	<artifactId>spring-context</artifactId>
+        	<version>${spring.framework.version}</version>
+        	<scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
