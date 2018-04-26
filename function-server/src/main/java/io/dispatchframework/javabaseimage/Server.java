@@ -41,7 +41,7 @@ public class Server {
             ex.printStackTrace(pw);
 
             String[] stderrLogs = sw.toString().split("\\r?\\n");
-            Response response = new Response(new Context(ex, stderrLogs), null);
+            Response response = new Response(new Context(ex, new Logs(stderrLogs, new String[0])), null);
 
             String jsonResponse = gson.toJson(response);
             exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
@@ -88,45 +88,52 @@ public class Server {
             return f.apply(gson.fromJson(context, biFunctionTypes[0]), gson.fromJson(payload, biFunctionTypes[1]));
         }
 
+        public Response processMessage(String message) {
+            Response response;
+            Object r = null;
+            Exception err = null;
+
+            // Closing a ByteArrayOutputStream has no effect
+            ByteArrayOutputStream baosStderr = new ByteArrayOutputStream();
+            ByteArrayOutputStream baosStdout = new ByteArrayOutputStream();
+
+            PrintStream oldStderr = System.err;
+            PrintStream oldStdout = System.out;
+
+            try (PrintStream stderr = new PrintStream(baosStderr);
+                 PrintStream stdout = new PrintStream(baosStdout)) {
+                try {
+                    System.setErr(stderr);
+                    System.setOut(stdout);
+
+                    r = applyFunction(message);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    err = ex;
+                } finally {
+                    System.err.flush();
+                    System.setErr(oldStderr);
+
+                    System.out.flush();
+                    System.setOut(oldStdout);
+
+                    String[] stderrLogs = baosStderr.toString().length() > 0 ? baosStderr.toString().split("\\r?\\n") : new String[0];
+                    String[] stdoutLogs = baosStdout.toString().length() > 0 ? baosStdout.toString().split("\\r?\\n") : new String[0];
+                    response = new Response(new Context(err, new Logs(stderrLogs, stdoutLogs)), r);
+                }
+            }
+
+            return response;
+        }
+
         @Override
         public void handleRequest(final HttpServerExchange exchange) {
             exchange.getRequestReceiver().receiveFullString((httpServerExchange, message) -> {
-                Object r = null;
-                Exception err = null;
+                Response response = processMessage(message);
 
-                // Closing a ByteArrayOutputStream has no effect
-                ByteArrayOutputStream baosStderr = new ByteArrayOutputStream();
-                ByteArrayOutputStream baosStdout = new ByteArrayOutputStream();
-
-                PrintStream oldStderr = System.err;
-                PrintStream oldStdout = System.out;
-
-                try (PrintStream stderr = new PrintStream(baosStderr);
-                     PrintStream stdout = new PrintStream(baosStdout)) {
-                    try {
-                        System.setErr(stderr);
-                        System.setOut(stdout);
-
-                        r = applyFunction(message);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                        err = ex;
-                    } finally {
-                        System.err.flush();
-                        System.setErr(oldStderr);
-
-                        System.out.flush();
-                        System.setOut(oldStdout);
-
-                        //TODO add support for stdout - https://github.com/vmware/dispatch/issues/355
-                        String[] stderrLogs = baosStderr.toString().length() > 0 ? baosStderr.toString().split("\\r?\\n") : new String[0];
-                        Response response = new Response(new Context(err, stderrLogs), r);
-
-                        String jsonResponse = gson.toJson(response);
-                        httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
-                        httpServerExchange.getResponseSender().send(jsonResponse);
-                    }
-                }
+                String jsonResponse = gson.toJson(response);
+                httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
+                httpServerExchange.getResponseSender().send(jsonResponse);
             }, Server::receiverErrorCallback);
         }
     }

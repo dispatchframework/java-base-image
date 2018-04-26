@@ -2,9 +2,9 @@ package io.dispatchframework.javabaseimage;
 
 public class Context {
     private Exception error;
-    private String[] logs;
+    private Logs logs;
 
-    public Context(Exception error, String[] logs) {
+    public Context(Exception error, Logs logs) {
         this.error = error;
         this.logs = logs;
     }
@@ -13,7 +13,7 @@ public class Context {
         return error;
     }
 
-    public String[] getLogs() {
+    public Logs getLogs() {
         return logs;
     }
 }
