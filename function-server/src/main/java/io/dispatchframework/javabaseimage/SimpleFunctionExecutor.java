@@ -1,7 +1,7 @@
 /**
  * 
  */
-package io.dispatchframework.javabaseimage.executor;
+package io.dispatchframework.javabaseimage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -74,7 +74,6 @@ public class SimpleFunctionExecutor implements FunctionExecutor {
 				System.out.flush();
 				System.setOut(oldStdout);
 
-				// TODO add support for stdout - https://github.com/vmware/dispatch/issues/355
 				String[] stdoutLogs = baosStdout.toString().length() > 0 ? baosStdout.toString().split("\\r?\\n")
 						: new String[0];
 				String[] stderrLogs = baosStderr.toString().length() > 0 ? baosStderr.toString().split("\\r?\\n")

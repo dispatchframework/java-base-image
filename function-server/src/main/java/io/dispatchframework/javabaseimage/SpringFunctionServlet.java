@@ -4,7 +4,7 @@
  * Copyright (C) 2018 VMware, Inc.
  * All Rights Reserved
  * **********************************************************/
-package io.dispatchframework.javabaseimage.servlet;
+package io.dispatchframework.javabaseimage;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -16,9 +16,6 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-
-import io.dispatchframework.javabaseimage.executor.FunctionExecutor;
-import io.dispatchframework.javabaseimage.executor.SimpleFunctionExecutor;
 
 /**
  *

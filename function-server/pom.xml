@@ -1,87 +1,89 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>io.dispatchframework.javabaseimage</groupId>
-    <artifactId>function-server</artifactId>
-    <version>1.0.0</version>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>io.dispatchframework.javabaseimage</groupId>
+	<artifactId>function-server</artifactId>
+	<version>1.0.0</version>
+	<packaging>jar</packaging>
 
-    <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.surefire.version>2.21.0</maven.surefire.version>
+	<properties>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.surefire.version>2.21.0</maven.surefire.version>
 
-        <undertow.version>2.0.3.Final</undertow.version>
-        <gson.version>2.8.2</gson.version>
+		<undertow.version>2.0.3.Final</undertow.version>
+		<gson.version>2.8.2</gson.version>
 
-        <junit.jupiter.api.version>5.2.0-M1</junit.jupiter.api.version>
-        <junit.jupiter.engine.version>5.2.0-M1</junit.jupiter.engine.version>
-        <junit.platform.version>1.2.0-M1</junit.platform.version>
+		<junit.jupiter.api.version>5.2.0-M1</junit.jupiter.api.version>
+		<junit.jupiter.engine.version>5.2.0-M1</junit.jupiter.engine.version>
+		<junit.platform.version>1.2.0-M1</junit.platform.version>
 
 		<mockito.version>2.18.3</mockito.version>
 
 		<spring.framework.version>5.0.5.RELEASE</spring.framework.version>
-    </properties>
+	</properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefire.version}</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.junit.platform</groupId>
-                        <artifactId>junit-platform-surefire-provider</artifactId>
-                        <version>${junit.platform.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.junit.jupiter</groupId>
-                        <artifactId>junit-jupiter-engine</artifactId>
-                        <version>${junit.jupiter.engine.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-        </plugins>
-    </build>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven.surefire.version}</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.junit.platform</groupId>
+						<artifactId>junit-platform-surefire-provider</artifactId>
+						<version>${junit.platform.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>org.junit.jupiter</groupId>
+						<artifactId>junit-jupiter-engine</artifactId>
+						<version>${junit.jupiter.engine.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
+	</build>
 
-    <dependencies>
-    	<dependency>
-    		<groupId>javax.inject</groupId>
-    		<artifactId>javax.inject</artifactId>
-    		<version>1</version>
-    	</dependency>
-        <dependency>
-            <groupId>io.undertow</groupId>
-            <artifactId>undertow-core</artifactId>
-            <version>${undertow.version}</version>
-        </dependency>
-        <dependency>
+	<dependencies>
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
+		<dependency>
+			<groupId>io.undertow</groupId>
+			<artifactId>undertow-core</artifactId>
+			<version>${undertow.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>io.undertow</groupId>
 			<artifactId>undertow-servlet</artifactId>
 			<version>${undertow.version}</version>
 		</dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>${gson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.jupiter.api.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-        	<groupId>org.junit.platform</groupId>
-        	<artifactId>junit-platform-launcher</artifactId>
-        	<version>${junit.platform.version}</version>
-        	<scope>test</scope>
-        </dependency>
-        <dependency>
-        	<groupId>org.junit.jupiter</groupId>
-        	<artifactId>junit-jupiter-engine</artifactId>
-        	<version>${junit.jupiter.engine.version}</version>
-        	<scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>${gson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit.jupiter.api.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-launcher</artifactId>
+			<version>${junit.platform.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit.jupiter.engine.version}</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
@@ -94,17 +96,17 @@
 			<version>${mockito.version}</version>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-        	<groupId>org.springframework</groupId>
-        	<artifactId>spring-core</artifactId>
-        	<version>${spring.framework.version}</version>
-        	<scope>provided</scope>
-        </dependency>
-        <dependency>
-        	<groupId>org.springframework</groupId>
-        	<artifactId>spring-context</artifactId>
-        	<version>${spring.framework.version}</version>
-        	<scope>provided</scope>
-        </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring.framework.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${spring.framework.version}</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
 </project>

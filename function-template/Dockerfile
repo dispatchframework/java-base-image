@@ -15,6 +15,9 @@ RUN while read -r _ _ a _; do echo "$a" ; done <<< $(cat ${FUNCTION_SRC} | sed -
 RUN mkdir -p src/main/java/$(cat /tmp/package | sed 's:\.:\/:g')
 RUN mv ${FUNCTION_SRC} src/main/java/$(cat /tmp/package | sed 's:\.:\/:g')/$(cat /tmp/class).java
 
+# Package function server
+RUN mvn package
+
 # Compile source files
 RUN mkdir -p target/classes
-RUN javac -d "target/classes" -cp "target/lib/*" src/main/java/io/dispatchframework/javabaseimage/* src/main/java/$(cat /tmp/package | sed 's:\.:\/:g')/$(cat /tmp/class).java
+RUN javac -d "target/classes" -cp "target/lib/*" src/main/java/$(cat /tmp/package | sed 's:\.:\/:g')/$(cat /tmp/class).java

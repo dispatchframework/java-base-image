@@ -21,4 +21,4 @@ COPY function-server /function-server/
 WORKDIR /function-server
 RUN mvn dependency:copy-dependencies -DoutputDirectory=target/lib -DincludeScope=runtime
 
-CMD java -cp target/classes:target/lib/* io.dispatchframework.javabaseimage.Server $(cat /tmp/package) $(cat /tmp/class)
+CMD java -cp target/classes:target/*:target/lib/* io.dispatchframework.javabaseimage.Entrypoint $(cat /tmp/package) $(cat /tmp/class)

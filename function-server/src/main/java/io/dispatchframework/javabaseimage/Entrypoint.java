@@ -24,18 +24,18 @@ public class Entrypoint {
 		Server server;
 		if (springInClasspath) {
 			// run spring function server
-			server = new SpringFunctionServer();	
+			server = new SpringFunctionServer(args);	
 		} else {
 			// run plain old java function server
 			server = new POJFunctionServer(args[0], args[1]);
 		}
 
 		server.start();
-		synchronized (server) {
-			server.wait();
-		}
-
-		server.stop();
+//		synchronized (server) {
+//			server.wait();
+//		}
+//
+//		server.stop();
 	}
 
 }

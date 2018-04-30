@@ -4,19 +4,24 @@
 package io.dispatchframework.javabaseimage;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.support.AbstractApplicationContext;
-
-import io.dispatchframework.javabaseimage.spring.DispatchSpringConfig;
 
 /**
  *
  */
 public class SpringFunctionServer implements Server {
 
-	private AbstractApplicationContext ctx;
+	private Class clazz;
+	
+	private AnnotationConfigApplicationContext ctx;
+
+	public SpringFunctionServer(String[] args) throws ClassNotFoundException {
+		this.clazz = Class.forName(args[0] + "." + args[1]);
+	}
 
 	public void start() {
-		ctx = new AnnotationConfigApplicationContext(DispatchSpringConfig.class);
+		ctx = new AnnotationConfigApplicationContext();
+		ctx.register(DispatchSpringConfig.class, clazz);
+		ctx.refresh();
 	}
 	
 	public void stop() {

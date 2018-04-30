@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import io.dispatchframework.javabaseimage.SimpleFunctionExecutor;
+
 /**
  *
  */
@@ -80,7 +82,7 @@ public class SimpleFunctionExecutorTests {
 
 		SimpleFunctionExecutor principal = new SimpleFunctionExecutor(successFunction);
 
-		String expected = "{\"context\":{\"error\":null,\"logs\":[]},\"payload\":\"The content-type is: application/json, with payload: test\"}";
+		String expected = "{\"context\":{\"error\":null,\"logs\":{\"stderr\":[],\"stdout\":[]}},\"payload\":\"The content-type is: application/json, with payload: test\"}";
 		String actual = principal.execute("{\"context\" : { \"content-type\" : \"application/json\"}, \"payload\" : \"test\"}");
 		assertEquals(expected, actual);
 	}
@@ -89,7 +91,7 @@ public class SimpleFunctionExecutorTests {
 	public void test_execute_empty() {
 		SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction);
 
-		String expected = "{\"context\":{\"error\":null,\"logs\":[]},\"payload\":\"Hello, Someone from Somewhere\"}";
+		String expected = "{\"context\":{\"error\":null,\"logs\":{\"stderr\":[],\"stdout\":[]}},\"payload\":\"Hello, Someone from Somewhere\"}";
 		String actual = principal.execute("{}");
 		assertEquals(expected, actual);
 	}

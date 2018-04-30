@@ -1,7 +1,7 @@
 /**
  * 
  */
-package io.dispatchframework.javabaseimage.servlet;
+package io.dispatchframework.javabaseimage;
 
 import java.io.IOException;
 import java.io.Writer;

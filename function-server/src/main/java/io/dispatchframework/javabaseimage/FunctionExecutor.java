@@ -1,4 +1,4 @@
-package io.dispatchframework.javabaseimage.executor;
+package io.dispatchframework.javabaseimage;
 
 public interface FunctionExecutor {
 

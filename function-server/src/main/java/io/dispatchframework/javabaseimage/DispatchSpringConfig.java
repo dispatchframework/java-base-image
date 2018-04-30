@@ -1,7 +1,7 @@
 /**
  * 
  */
-package io.dispatchframework.javabaseimage.spring;
+package io.dispatchframework.javabaseimage;
 
 import java.util.function.BiFunction;
 
@@ -10,11 +10,8 @@ import javax.servlet.ServletException;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
-import io.dispatchframework.javabaseimage.servlet.HealthzServlet;
-import io.dispatchframework.javabaseimage.servlet.SpringFunctionServlet;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.handlers.PathHandler;
@@ -27,7 +24,6 @@ import io.undertow.servlet.util.ImmediateInstanceFactory;
  *
  */
 @Configuration
-@ComponentScan("io.dispatchframework")
 public class DispatchSpringConfig {
 
 	@Bean("springServlet")
@@ -65,6 +61,6 @@ public class DispatchSpringConfig {
 
 		PathHandler path = Handlers.path(Handlers.redirect("/")).addPrefixPath("/", manager.start());
 
-		return Undertow.builder().addHttpListener(8080, "localhost").setHandler(path).build();
+		return Undertow.builder().addHttpListener(8080, "0.0.0.0").setHandler(path).build();
 	}
 }
