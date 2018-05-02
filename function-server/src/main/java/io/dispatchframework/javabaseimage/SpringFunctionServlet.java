@@ -1,9 +1,7 @@
-/* **********************************************************
- * SpringFunctionExecutor.java
- *
- * Copyright (C) 2018 VMware, Inc.
- * All Rights Reserved
- * **********************************************************/
+///////////////////////////////////////////////////////////////////////
+// Copyright (c) 2018 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+///////////////////////////////////////////////////////////////////////
 package io.dispatchframework.javabaseimage;
 
 import java.io.IOException;
@@ -18,7 +16,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 /**
- *
+ * Servlet implementation used to respond to Dispatch function execution
+ * requests.
  */
 public class SpringFunctionServlet implements Servlet {
 

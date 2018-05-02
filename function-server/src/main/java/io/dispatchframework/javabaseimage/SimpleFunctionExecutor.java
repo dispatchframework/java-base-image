@@ -1,9 +1,7 @@
-/* **********************************************************
- * SimpleFunctionExecutor.java
- *
- * Copyright (C) 2018 VMware, Inc.
- * All Rights Reserved
- * **********************************************************/
+///////////////////////////////////////////////////////////////////////
+// Copyright (c) 2018 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+///////////////////////////////////////////////////////////////////////
 package io.dispatchframework.javabaseimage;
 
 import java.io.ByteArrayOutputStream;
@@ -23,7 +21,8 @@ import io.dispatchframework.javabaseimage.Logs;
 import io.dispatchframework.javabaseimage.Response;
 
 /**
- *
+ * Implementation of the FunctionExecutor. This class uses gson to
+ * serialize/deserialize Dispatch function execution requests
  */
 public class SimpleFunctionExecutor implements FunctionExecutor {
     private static final Gson gson = new GsonBuilder().serializeNulls().create();

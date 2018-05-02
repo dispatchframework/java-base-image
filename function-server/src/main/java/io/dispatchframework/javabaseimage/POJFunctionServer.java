@@ -1,9 +1,7 @@
-/* **********************************************************
- * POJFunctionServer.java
- *
- * Copyright (C) 2018 VMware, Inc.
- * All Rights Reserved
- * **********************************************************/
+///////////////////////////////////////////////////////////////////////
+// Copyright (c) 2018 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+///////////////////////////////////////////////////////////////////////
 package io.dispatchframework.javabaseimage;
 
 import java.io.IOException;
@@ -20,6 +18,10 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.Undertow;
 import io.undertow.util.Headers;
 
+/**
+ * A Server implementation that responsible for running Dispatch functions
+ * with no dependency on Spring.
+ */
 public class POJFunctionServer implements Server {
     private static final Gson gson = new GsonBuilder().serializeNulls().create();
 

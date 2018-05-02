@@ -1,9 +1,7 @@
-/* **********************************************************
- * POJFunctionServerTests.java
- *
- * Copyright (C) 2018 VMware, Inc.
- * All Rights Reserved
- * **********************************************************/
+///////////////////////////////////////////////////////////////////////
+// Copyright (c) 2018 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+///////////////////////////////////////////////////////////////////////
 package io.dispatchframework.javabaseimage;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;

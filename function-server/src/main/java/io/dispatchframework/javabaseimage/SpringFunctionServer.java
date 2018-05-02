@@ -1,15 +1,14 @@
-/* **********************************************************
- * SpringFunctionServer.java
- *
- * Copyright (C) 2018 VMware, Inc.
- * All Rights Reserved
- * **********************************************************/
+///////////////////////////////////////////////////////////////////////
+// Copyright (c) 2018 VMware, Inc. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+///////////////////////////////////////////////////////////////////////
 package io.dispatchframework.javabaseimage;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
- *
+ * A Server implementation for running Dispatch functions in a Spring
+ * Application Context.
  */
 public class SpringFunctionServer implements Server {
 
