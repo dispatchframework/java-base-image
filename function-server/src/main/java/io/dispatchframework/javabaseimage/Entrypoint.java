@@ -1,6 +1,9 @@
-/**
- * 
- */
+/* **********************************************************
+ * Entrypoint.java
+ *
+ * Copyright (C) 2018 VMware, Inc.
+ * All Rights Reserved
+ * **********************************************************/
 package io.dispatchframework.javabaseimage;
 
 /**
@@ -10,7 +13,7 @@ public class Entrypoint {
 
 	/**
 	 * @param args
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
 
@@ -24,18 +27,18 @@ public class Entrypoint {
 		Server server;
 		if (springInClasspath) {
 			// run spring function server
-			server = new SpringFunctionServer(args);	
+			server = new SpringFunctionServer(args);
 		} else {
 			// run plain old java function server
 			server = new POJFunctionServer(args[0], args[1]);
 		}
 
 		server.start();
-//		synchronized (server) {
-//			server.wait();
-//		}
-//
-//		server.stop();
+		synchronized (server) {
+			server.wait();
+		}
+
+		server.stop();
 	}
 
 }

@@ -1,6 +1,9 @@
-/**
- * 
- */
+/* **********************************************************
+ * SimpleFunctionExecutorTests.java
+ *
+ * Copyright (C) 2018 VMware, Inc.
+ * All Rights Reserved
+ * **********************************************************/
 package io.dispatchframework.javabaseimage.executor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

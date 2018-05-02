@@ -1,6 +1,9 @@
-/**
- * 
- */
+/* **********************************************************
+ * DispatchSpringConfig.java
+ *
+ * Copyright (C) 2018 VMware, Inc.
+ * All Rights Reserved
+ * **********************************************************/
 package io.dispatchframework.javabaseimage;
 
 import java.util.function.BiFunction;
@@ -21,7 +24,7 @@ import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.servlet.util.ImmediateInstanceFactory;
 
 /**
- *
+ * Server configuration for Dispatch functions using Spring
  */
 @Configuration
 public class DispatchSpringConfig {
@@ -39,10 +42,8 @@ public class DispatchSpringConfig {
 	@Bean(name = "deploymentInfo")
 	DeploymentInfo deploymentInfo(@Qualifier("springServlet") Servlet springServlet,
 			@Qualifier("healthzServlet") Servlet healthzServlet) {
-		return Servlets.deployment()
-				.setClassLoader(DispatchSpringConfig.class.getClassLoader())
-				.setDeploymentName("dispatch")
-				.setContextPath("/ROOT")
+		return Servlets.deployment().setClassLoader(DispatchSpringConfig.class.getClassLoader())
+				.setDeploymentName("dispatch").setContextPath("/ROOT")
 				.addServlet(Servlets
 						.servlet("spring", SpringFunctionServlet.class, new ImmediateInstanceFactory<>(springServlet))
 						.addMapping("/"))
