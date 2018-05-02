@@ -26,93 +26,86 @@ import io.dispatchframework.javabaseimage.Response;
  *
  */
 public class SimpleFunctionExecutor implements FunctionExecutor {
-	private static final Gson gson = new GsonBuilder().serializeNulls().create();
+    private static final Gson gson = new GsonBuilder().serializeNulls().create();
 
-	private BiFunction f;
-	private Type[] biFunctionTypes;
+    private BiFunction f;
+    private Type[] biFunctionTypes;
 
-	public SimpleFunctionExecutor(BiFunction f) {
-		this.f = f;
+    public SimpleFunctionExecutor(BiFunction f) {
+        this.f = f;
 
-		this.biFunctionTypes = getBiFunctionTypes(f.getClass());
-		if (biFunctionTypes == null || biFunctionTypes.length != 3) {
-			throw new IllegalArgumentException(
-					String.format("%s does not implement the BiFunction interface", f.getClass().getName()));
-		}
-	}
+        this.biFunctionTypes = getBiFunctionTypes(f.getClass());
+        if (biFunctionTypes == null || biFunctionTypes.length != 3) {
+            throw new IllegalArgumentException(
+                    String.format("%s does not implement the BiFunction interface", f.getClass().getName()));
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * io.dispatchframework.javabaseimage.executor.FunctionExecutor#execute(java.
-	 * lang.String)
-	 */
-	@Override
-	public String execute(String message) {
-		Object r = null;
-		Exception err = null;
-		String jsonResponse = null;
+    @Override
+    public String execute(String message) {
+        Object r = null;
+        Exception err = null;
+        String jsonResponse = null;
 
-		// Closing a ByteArrayOutputStream has no effect
-		ByteArrayOutputStream baosStderr = new ByteArrayOutputStream();
-		ByteArrayOutputStream baosStdout = new ByteArrayOutputStream();
+        // Closing a ByteArrayOutputStream has no effect
+        ByteArrayOutputStream baosStderr = new ByteArrayOutputStream();
+        ByteArrayOutputStream baosStdout = new ByteArrayOutputStream();
 
-		PrintStream oldStderr = System.err;
-		PrintStream oldStdout = System.out;
+        PrintStream oldStderr = System.err;
+        PrintStream oldStdout = System.out;
 
-		try (PrintStream stderr = new PrintStream(baosStderr); PrintStream stdout = new PrintStream(baosStdout)) {
-			try {
-				System.setErr(stderr);
-				System.setOut(stdout);
+        try (PrintStream stderr = new PrintStream(baosStderr); PrintStream stdout = new PrintStream(baosStdout)) {
+            try {
+                System.setErr(stderr);
+                System.setOut(stdout);
 
-				r = applyFunction(message);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				err = ex;
-			} finally {
-				System.err.flush();
-				System.setErr(oldStderr);
+                r = applyFunction(message);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                err = ex;
+            } finally {
+                System.err.flush();
+                System.setErr(oldStderr);
 
-				System.out.flush();
-				System.setOut(oldStdout);
+                System.out.flush();
+                System.setOut(oldStdout);
 
-				String[] stdoutLogs = baosStdout.toString().length() > 0 ? baosStdout.toString().split("\\r?\\n")
-						: new String[0];
-				String[] stderrLogs = baosStderr.toString().length() > 0 ? baosStderr.toString().split("\\r?\\n")
-						: new String[0];
-				Response response = new Response(new Context(err, new Logs(stderrLogs, stdoutLogs)), r);
+                String[] stdoutLogs = baosStdout.toString().length() > 0 ? baosStdout.toString().split("\\r?\\n")
+                        : new String[0];
+                String[] stderrLogs = baosStderr.toString().length() > 0 ? baosStderr.toString().split("\\r?\\n")
+                        : new String[0];
+                Response response = new Response(new Context(err, new Logs(stderrLogs, stdoutLogs)), r);
 
-				jsonResponse = gson.toJson(response);
-			}
-		}
+                jsonResponse = gson.toJson(response);
+            }
+        }
 
-		return jsonResponse;
-	}
+        return jsonResponse;
+    }
 
-	public Object applyFunction(String message) {
-		JsonObject rootObj = new JsonParser().parse(message).getAsJsonObject();
-		JsonElement context = rootObj.get("context");
-		JsonElement payload = rootObj.get("payload");
+    public Object applyFunction(String message) {
+        JsonObject rootObj = new JsonParser().parse(message).getAsJsonObject();
+        JsonElement context = rootObj.get("context");
+        JsonElement payload = rootObj.get("payload");
 
-		return f.apply(gson.fromJson(context, biFunctionTypes[0]), gson.fromJson(payload, biFunctionTypes[1]));
-	}
+        return f.apply(gson.fromJson(context, biFunctionTypes[0]), gson.fromJson(payload, biFunctionTypes[1]));
+    }
 
-	private Type[] getBiFunctionTypes(Class<?> functionClass) {
-		Type[] genericInterfaces = functionClass.getGenericInterfaces();
-		Type[] genericTypes = null;
+    private Type[] getBiFunctionTypes(Class<?> functionClass) {
+        Type[] genericInterfaces = functionClass.getGenericInterfaces();
+        Type[] genericTypes = null;
 
-		for (Type genericInterface : genericInterfaces) {
-			if (genericInterface instanceof ParameterizedType) {
-				ParameterizedType parameterizedType = (ParameterizedType) genericInterface;
-				if (parameterizedType.getRawType().equals(BiFunction.class)) {
-					genericTypes = parameterizedType.getActualTypeArguments();
-					break;
-				}
-			}
-		}
+        for (Type genericInterface : genericInterfaces) {
+            if (genericInterface instanceof ParameterizedType) {
+                ParameterizedType parameterizedType = (ParameterizedType) genericInterface;
+                if (parameterizedType.getRawType().equals(BiFunction.class)) {
+                    genericTypes = parameterizedType.getActualTypeArguments();
+                    break;
+                }
+            }
+        }
 
-		return genericTypes;
-	}
+        return genericTypes;
+    }
 
 }

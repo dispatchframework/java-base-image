@@ -22,61 +22,56 @@ import javax.servlet.ServletResponse;
  */
 public class SpringFunctionServlet implements Servlet {
 
-	private BiFunction f;
-	private FunctionExecutor executor;
+    private BiFunction f;
+    private FunctionExecutor executor;
 
-	public SpringFunctionServlet(BiFunction f) {
-		this.f = f;
-		this.executor = new SimpleFunctionExecutor(f);
-	}
+    public SpringFunctionServlet(BiFunction f) {
+        this.f = f;
+        this.executor = new SimpleFunctionExecutor(f);
+    }
 
-	@Override
-	public void init(ServletConfig config) throws ServletException {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        // No resources to initialize
 
-	@Override
-	public ServletConfig getServletConfig() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    }
 
-	@Override
-	public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-		String response = executor.execute(getBody(req));
-		
-		try (Writer writer = res.getWriter()) {
-			writer.append(response);
-			res.setContentType("application/json");
-		}
-	}
+    @Override
+    public ServletConfig getServletConfig() {
+        return null;
+    }
 
-	@Override
-	public String getServletInfo() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+        String response = executor.execute(getBody(req));
 
-	@Override
-	public void destroy() {
-		// TODO Auto-generated method stub
-		
-	}
+        res.setContentType("application/json");
+        try (Writer writer = res.getWriter()) {
+            writer.append(response);
+        }
+    }
 
-	private String getBody(ServletRequest req) throws IOException {
-		String body = null;
-		StringBuffer sb = new StringBuffer();
-		
-		try (Reader reader = req.getReader()) {
-			char[] charBuffer = new char[128];
-			int bytesRead = -1;
-			while ((bytesRead = reader.read(charBuffer)) > 0) {
-				sb.append(charBuffer, 0, bytesRead);
-			}
-		}
+    @Override
+    public String getServletInfo() {
+        return null;
+    }
 
-		body = sb.toString();
-		return body;
-	}
+    @Override
+    public void destroy() {
+        // No resources to release
+    }
+
+    private String getBody(ServletRequest req) throws IOException {
+        StringBuffer sb = new StringBuffer();
+
+        try (Reader reader = req.getReader()) {
+            char[] charBuffer = new char[128];
+            int bytesRead = -1;
+            while ((bytesRead = reader.read(charBuffer)) > 0) {
+                sb.append(charBuffer, 0, bytesRead);
+            }
+        }
+
+        return sb.toString();
+    }
 }

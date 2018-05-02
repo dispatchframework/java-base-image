@@ -13,21 +13,21 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  */
 public class SpringFunctionServer implements Server {
 
-	private Class clazz;
-	
-	private AnnotationConfigApplicationContext ctx;
+    private Class clazz;
 
-	public SpringFunctionServer(String[] args) throws ClassNotFoundException {
-		this.clazz = Class.forName(args[0] + "." + args[1]);
-	}
+    private AnnotationConfigApplicationContext ctx;
 
-	public void start() {
-		ctx = new AnnotationConfigApplicationContext();
-		ctx.register(DispatchSpringConfig.class, clazz);
-		ctx.refresh();
-	}
-	
-	public void stop() {
-		ctx.close();
-	}
+    public SpringFunctionServer(String[] args) throws ClassNotFoundException {
+        this.clazz = Class.forName(args[0] + "." + args[1]);
+    }
+
+    public void start() {
+        ctx = new AnnotationConfigApplicationContext();
+        ctx.register(DispatchSpringConfig.class, clazz);
+        ctx.refresh();
+    }
+
+    public void stop() {
+        ctx.close();
+    }
 }

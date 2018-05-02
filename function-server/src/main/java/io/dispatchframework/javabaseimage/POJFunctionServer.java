@@ -21,24 +21,22 @@ import io.undertow.Undertow;
 import io.undertow.util.Headers;
 
 public class POJFunctionServer implements Server {
-	private static final Gson gson = new GsonBuilder().serializeNulls().create();
+    private static final Gson gson = new GsonBuilder().serializeNulls().create();
 
     private Undertow undertow;
+
     public POJFunctionServer(String packageName, String className) throws Exception {
-        undertow = Undertow.builder()
-                .addHttpListener(8080, "0.0.0.0")
-                .setHandler(Handlers.path()
-                        .addPrefixPath("/", new ExecFunction(packageName, className))
-                        .addExactPath("/healthz", new Healthz()))
+        undertow = Undertow.builder().addHttpListener(8080, "0.0.0.0").setHandler(Handlers.path()
+                .addPrefixPath("/", new ExecFunction(packageName, className)).addExactPath("/healthz", new Healthz()))
                 .build();
     }
 
     public void start() {
-    	this.undertow.start();
+        this.undertow.start();
     }
 
     public void stop() {
-    	this.undertow.stop();
+        this.undertow.stop();
     }
 
     private static void receiverErrorCallback(HttpServerExchange exchange, IOException ex) {
@@ -57,10 +55,11 @@ public class POJFunctionServer implements Server {
     }
 
     public static class ExecFunction implements HttpHandler {
-    	final BiFunction f;
-    	final FunctionExecutor executor;
+        final BiFunction f;
+        final FunctionExecutor executor;
 
-        public ExecFunction(String packageName, String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        public ExecFunction(String packageName, String className)
+                throws ClassNotFoundException, InstantiationException, IllegalAccessException {
             Class<?> functionClass = Class.forName(packageName + "." + className);
             this.f = (BiFunction) functionClass.newInstance();
             executor = new SimpleFunctionExecutor(f);
@@ -69,7 +68,7 @@ public class POJFunctionServer implements Server {
         @Override
         public void handleRequest(final HttpServerExchange exchange) {
             exchange.getRequestReceiver().receiveFullString((httpServerExchange, message) -> {
-            	String response = executor.execute(message);
+                String response = executor.execute(message);
                 httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
                 httpServerExchange.getResponseSender().send(response);
             }, POJFunctionServer::receiverErrorCallback);
