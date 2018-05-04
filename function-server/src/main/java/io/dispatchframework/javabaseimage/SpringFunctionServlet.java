@@ -21,11 +21,9 @@ import javax.servlet.ServletResponse;
  */
 public class SpringFunctionServlet implements Servlet {
 
-    private BiFunction f;
     private FunctionExecutor executor;
 
     public SpringFunctionServlet(BiFunction f) {
-        this.f = f;
         this.executor = new SimpleFunctionExecutor(f);
     }
 
