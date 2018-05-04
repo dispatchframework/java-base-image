@@ -6,7 +6,7 @@ ARG FUNCTION_SRC=function.txt
 COPY ${FUNCTION_SRC} .
 
 # Package function server
-RUN mvn package
+RUN mvn package -Dmaven.test.skip=true
 
 # Package name
 RUN while read -r _ a _; do echo "$a" ; done <<< $(cat ${FUNCTION_SRC} | grep "^[ $(printf '\t')]*package" | head -1) | sed s'/;*$//' > /tmp/package
