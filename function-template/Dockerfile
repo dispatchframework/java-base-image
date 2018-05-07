@@ -5,6 +5,9 @@ ARG FUNCTION_SRC=function.txt
 
 COPY ${FUNCTION_SRC} .
 
+# Package function server
+RUN mvn package -Dmaven.test.skip=true
+
 # Package name
 RUN while read -r _ a _; do echo "$a" ; done <<< $(cat ${FUNCTION_SRC} | grep "^[ $(printf '\t')]*package" | head -1) | sed s'/;*$//' > /tmp/package
 
@@ -17,4 +20,4 @@ RUN mv ${FUNCTION_SRC} src/main/java/$(cat /tmp/package | sed 's:\.:\/:g')/$(cat
 
 # Compile source files
 RUN mkdir -p target/classes
-RUN javac -d "target/classes" -cp "target/lib/*" src/main/java/io/dispatchframework/javabaseimage/* src/main/java/$(cat /tmp/package | sed 's:\.:\/:g')/$(cat /tmp/class).java
+RUN javac -d "target/classes" -cp "target/lib/*" src/main/java/$(cat /tmp/package | sed 's:\.:\/:g')/$(cat /tmp/class).java

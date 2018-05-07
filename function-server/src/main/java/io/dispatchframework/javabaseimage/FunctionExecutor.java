@@ -4,12 +4,7 @@
 ///////////////////////////////////////////////////////////////////////
 package io.dispatchframework.javabaseimage;
 
-import java.io.Serializable;
-import java.util.function.BiPredicate;
+public interface FunctionExecutor {
 
-public class BadHandler implements Serializable, BiPredicate<String, String> {
-    @Override
-    public boolean test(String s1, String s2) {
-        return true;
-    }
+    String execute(String message);
 }
