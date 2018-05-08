@@ -1,7 +1,7 @@
 # java-base-image
 Java language support for Dispatch
 
-Latest image [on Docker Hub](https://hub.docker.com/r/dispatchframework/java8-base/): `dispatchframework/java8-base:0.0.2`
+Latest image [on Docker Hub](https://hub.docker.com/r/dispatchframework/java8-base/): `dispatchframework/java8-base:0.0.3`
 
 ## Usage
 
@@ -11,7 +11,7 @@ You need a recent version of Dispatch [installed in your Kubernetes cluster, Dis
 
 To add the base-image to Dispatch:
 ```bash
-$ dispatch create base-image java8-base dispatchframework/java8-base:0.0.2
+$ dispatch create base-image java8-base dispatchframework/java8-base:0.0.3
 ```
 
 Make sure the base-image status is `READY` (it normally goes from `INITIALIZED` to `READY`):
@@ -27,7 +27,9 @@ Library dependencies listed in `pom.xml` ([maven dependency manifest](https://ma
 $ cat ./pom.xml
 ```
 ```xml
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.dispatchframework.examples</groupId>
     <artifactId>hello-with-deps</artifactId>
@@ -120,4 +122,138 @@ $ dispatch exec --json --input '{"name": "Jon"}' --wait hello
     "status": "READY",
     "tags": []
 }
+```
+
+## Spring Support
+The Java language base image now supports initialization of a Spring application context to support functions that rely on Spring framework components. For now this support relies on as few Spring components as possible to remain compatibile with as many Spring versions as possible. Further the base image supports choosing whether to start the application context based on the presence of Spring classes on the classpath. As long as the `org.springframework.beans.factory.BeanFactory` class is on the classpath, the function image will start an `AnnotationConfigApplicationContext`.
+
+### Writing a function with Spring
+First we will need to include the Spring dependencies when we create the image. For our example we will use this simple pom.xml
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>dispatchframework.examples</groupId>
+  <artifactId>dispatch-spring</artifactId>
+  <version>1.0.0</version>
+
+  <properties>
+    <spring.version>5.0.5.RELEASE</spring.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+  </dependencies>
+</project>
+```
+
+Let's pass these runtime dependencies to the creation of our image.
+```bash
+dispatch create image java8-spring java8-base --runtime-deps ./pom.xml
+```
+
+Now let's take a look at example Java function that uses Spring to wire dependencies into our function.
+```java
+package io.dispatchframework.examples;
+
+import java.util.Map;
+import java.util.function.BiFunction;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class HelloSpring {
+
+
+    @Bean(name = "noone")
+    Person noone() {
+        return new Person("Noone", "Nowhere");
+    }
+
+    @Bean
+    BiFunction function(@Qualifier("noone") Person noone) {
+        return new HelloSpringFunction(noone);
+    }
+
+    public class HelloSpringFunction implements BiFunction<Map<Object, Object>, Person, Result> {
+        private Person defaultPerson;
+
+        HelloSpringFunction(Person defaultPerson) {
+            this.defaultPerson = defaultPerson;
+        }
+
+        @Override
+        public Result apply(Map<Object, Object> context, Person person) {
+            final String name = person.getName() == null ? defaultPerson.getName() : person.getName();
+            final String place = person.getPlace() == null ? defaultPerson.getPlace() : person.getPlace();
+            return new Result("Hello, " + name + " from " + place);
+        }
+    }
+
+    private class Person {
+        private String name;
+        private String place;
+
+        public Person(String name, String place) {
+            this.name = name;
+            this.place = place;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public String getPlace() {
+            return this.place;
+        }
+    }
+
+    private class Result {
+        private String myField;
+
+        public Result(String myField) {
+            this.myField = myField;
+        }
+
+        public String getMyField() {
+            return this.myField;
+        }
+    }
+}
+```
+
+The important thing to note about this function file is that the top level class is annotated with @Configuration. This is required for Dispatch to register the beans defined within this file. The other important thing to note is that our support for Spring based functions expects a single bean of type `BiFunction` to be registered as a bean in the application context. In this above example this can be seen here:
+
+```java
+    @Bean
+    BiFunction function(@Qualifier("noone") Person noone) {
+        return new HelloSpringFunction(noone);
+    }
+```
+
+To create this function we run
+```bash
+dispatch create function java8-spring spring-fn ./HelloSpring.java
+```
+
+Again wait for the function status to show as `READY`
+```bash
+dispatch get function spring-fn
+```
+
+Finally we can execute this function the same way as above
+```bash
+$ dispatch exec --json --input '{"name": "Jon"}' --wait spring-fn
 ```
