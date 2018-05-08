@@ -1,4 +1,4 @@
-gi# java-base-image
+# java-base-image
 Java language support for Dispatch
 
 Latest image [on Docker Hub](https://hub.docker.com/r/dispatchframework/java8-base/): `dispatchframework/java8-base:0.0.3`
@@ -245,7 +245,7 @@ The important thing to note about this function file is that the top level class
 
 To create this function we run
 ```bash
-dispatch create function java8-spring spring-fn ./HelloSpring.class
+dispatch create function java8-spring spring-fn ./HelloSpring.java
 ```
 
 Again wait for the function status to show as `READY`
