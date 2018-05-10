@@ -1,7 +1,7 @@
 # java-base-image
 Java language support for Dispatch
 
-Latest image [on Docker Hub](https://hub.docker.com/r/dispatchframework/java8-base/): `dispatchframework/java8-base:0.0.3`
+Latest image [on Docker Hub](https://hub.docker.com/r/dispatchframework/java-base/): `dispatchframework/java-base:0.0.3`
 
 ## Usage
 
@@ -11,12 +11,12 @@ You need a recent version of Dispatch [installed in your Kubernetes cluster, Dis
 
 To add the base-image to Dispatch:
 ```bash
-$ dispatch create base-image java8-base dispatchframework/java8-base:0.0.3
+$ dispatch create base-image java-base dispatchframework/java-base:0.0.3
 ```
 
 Make sure the base-image status is `READY` (it normally goes from `INITIALIZED` to `READY`):
 ```bash
-$ dispatch get base-image java8-base
+$ dispatch get base-image java-base
 ```
 
 ### Adding Runtime Dependencies
@@ -49,12 +49,12 @@ $ cat ./pom.xml
 </project>
 ```
 ```bash
-$ dispatch create image java8-mylibs java8-base --runtime-deps ./pom.xml
+$ dispatch create image java-mylibs java-base --runtime-deps ./pom.xml
 ```
 
 Make sure the image status is `READY` (it normally goes from `INITIALIZED` to `READY`):
 ```bash
-$ dispatch get image java8-mylibs
+$ dispatch get image java-mylibs
 ```
 
 
@@ -84,7 +84,7 @@ public class Hello implements BiFunction<Map<String, Object>, Map<String, Object
 ```
 
 ```bash
-$ dispatch create function java8-mylibs hello ./Hello.java
+$ dispatch create function java-mylibs hello ./Hello.java
 ```
 
 Make sure the function status is `READY` (it normally goes from `INITIALIZED` to `READY`):
@@ -160,7 +160,7 @@ First we will need to include the Spring dependencies when we create the image. 
 
 Let's pass these runtime dependencies to the creation of our image.
 ```bash
-dispatch create image java8-spring java8-base --runtime-deps ./pom.xml
+dispatch create image java-spring java-base --runtime-deps ./pom.xml
 ```
 
 Now let's take a look at example Java function that uses Spring to wire dependencies into our function.
@@ -245,7 +245,7 @@ The important thing to note about this function file is that the top level class
 
 To create this function we run
 ```bash
-dispatch create function java8-spring spring-fn ./HelloSpring.java
+dispatch create function java-spring spring-fn ./HelloSpring.java
 ```
 
 Again wait for the function status to show as `READY`

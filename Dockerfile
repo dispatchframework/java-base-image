@@ -1,6 +1,7 @@
 FROM vmware/photon2:20180302
 
-RUN tdnf install -y openjdk8-1.8.0.152-1.ph2 apache-maven-3.5.0-5.ph2
+RUN tdnf install -yq tar gzip apache-maven-3.5.0-5.ph2 && curl -f https://cdn.azul.com/zulu/bin/zulu10.1+11-jdk10-linux_x64.tar.gz | tar -xzf -
+ENV PATH=/zulu10.1+11-jdk10-linux_x64/bin:${PATH}
 
 ENV PATH /var/opt/apache-maven/bin:$PATH
 
