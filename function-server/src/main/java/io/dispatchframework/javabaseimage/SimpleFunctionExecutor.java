@@ -16,10 +16,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.dispatchframework.javabaseimage.Context;
-import io.dispatchframework.javabaseimage.Logs;
-import io.dispatchframework.javabaseimage.Response;
-
 /**
  * Implementation of the FunctionExecutor. This class uses gson to
  * serialize/deserialize Dispatch function execution requests
@@ -42,9 +38,10 @@ public class SimpleFunctionExecutor implements FunctionExecutor {
 
     @Override
     public String execute(String message) {
+        Request req = null;
         Object r = null;
-        Exception err = null;
-        String jsonResponse = null;
+        Error err = null;
+        String jsonResponse;
 
         // Closing a ByteArrayOutputStream has no effect
         ByteArrayOutputStream baosStderr = new ByteArrayOutputStream();
@@ -58,36 +55,53 @@ public class SimpleFunctionExecutor implements FunctionExecutor {
                 System.setErr(stderr);
                 System.setOut(stdout);
 
-                r = applyFunction(message);
+                req = getRequest(message);
             } catch (Exception ex) {
+                // If misaligned json type to BiFunction type
+                if (ex.getCause() instanceof IllegalStateException) {
+                    err = new Error(ex, ErrorType.INPUT_ERROR);
+                } else {
+                    err = new Error(ex, ErrorType.SYSTEM_ERROR);
+                }
                 ex.printStackTrace();
-                err = ex;
-            } finally {
-                System.err.flush();
-                System.setErr(oldStderr);
-
-                System.out.flush();
-                System.setOut(oldStdout);
-
-                String[] stdoutLogs = baosStdout.toString().length() > 0 ? baosStdout.toString().split("\\r?\\n")
-                        : new String[0];
-                String[] stderrLogs = baosStderr.toString().length() > 0 ? baosStderr.toString().split("\\r?\\n")
-                        : new String[0];
-                Response response = new Response(new Context(err, new Logs(stderrLogs, stdoutLogs)), r);
-
-                jsonResponse = gson.toJson(response);
             }
+
+            if (err == null) {
+                try {
+                    r = f.apply(req.getContext(), req.getPayload());
+                } catch (IllegalArgumentException ex) {
+                    err = new Error(ex, ErrorType.INPUT_ERROR);
+                    ex.printStackTrace();
+                } catch (Exception ex) {
+                    err = new Error(ex, ErrorType.FUNCTION_ERROR);
+                    ex.printStackTrace();
+                }
+            }
+        } finally {
+            System.err.flush();
+            System.setErr(oldStderr);
+
+            System.out.flush();
+            System.setOut(oldStdout);
+
+            String[] stdoutLogs = baosStdout.toString().length() > 0 ? baosStdout.toString().split("\\r?\\n")
+                    : new String[0];
+            String[] stderrLogs = baosStderr.toString().length() > 0 ? baosStderr.toString().split("\\r?\\n")
+                    : new String[0];
+            Response response = new Response(new Context(err, new Logs(stderrLogs, stdoutLogs)), r);
+
+            jsonResponse = gson.toJson(response);
         }
 
         return jsonResponse;
     }
 
-    public Object applyFunction(String message) {
+    private Request getRequest(String message) {
         JsonObject rootObj = new JsonParser().parse(message).getAsJsonObject();
         JsonElement context = rootObj.get("context");
         JsonElement payload = rootObj.get("payload");
 
-        return f.apply(gson.fromJson(context, biFunctionTypes[0]), gson.fromJson(payload, biFunctionTypes[1]));
+        return new Request(gson.fromJson(context, biFunctionTypes[0]), gson.fromJson(payload, biFunctionTypes[1]));
     }
 
     private Type[] getBiFunctionTypes(Class<?> functionClass) {

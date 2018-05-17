@@ -2,14 +2,13 @@
 // Copyright (c) 2018 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 ///////////////////////////////////////////////////////////////////////
-package io.dispatchframework.javabaseimage;
+package io.dispatchframework.javabaseimage.Handlers;
 
-import java.io.Serializable;
-import java.util.function.BiPredicate;
+import java.util.function.BiFunction;
 
-public class BadHandler implements Serializable, BiPredicate<String, String> {
+public abstract class AbstractHandler implements BiFunction<String, String, Integer> {
     @Override
-    public boolean test(String s1, String s2) {
-        return true;
+    public Integer apply(String context, String payload)  {
+        return 0;
     }
 }

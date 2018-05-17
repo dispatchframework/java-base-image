@@ -2,7 +2,7 @@
 // Copyright (c) 2018 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 ///////////////////////////////////////////////////////////////////////
-package io.dispatchframework.javabaseimage;
+package io.dispatchframework.javabaseimage.Handlers;
 
 import java.util.Map;
 import java.util.function.BiFunction;
