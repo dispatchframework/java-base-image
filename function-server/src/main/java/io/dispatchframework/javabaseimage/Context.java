@@ -5,15 +5,15 @@
 package io.dispatchframework.javabaseimage;
 
 public class Context {
-    private Exception error;
+    private Error error;
     private Logs logs;
 
-    public Context(Exception error, Logs logs) {
+    public Context(Error error, Logs logs) {
         this.error = error;
         this.logs = logs;
     }
 
-    public Exception getError() {
+    public Error getError() {
         return error;
     }
 

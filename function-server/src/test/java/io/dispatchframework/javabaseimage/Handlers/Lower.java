@@ -2,19 +2,20 @@
 // Copyright (c) 2018 VMware, Inc. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 ///////////////////////////////////////////////////////////////////////
-package io.dispatchframework.javabaseimage;
+package io.dispatchframework.javabaseimage.Handlers;
 
 import java.util.Map;
 import java.util.function.BiFunction;
 
-public class Logger implements BiFunction<Map<String, Object>, Map<String, Object>, String> {
+public class Lower implements BiFunction<Map<String, Object>, Map<String, Object>, String> {
     @Override
     public String apply(Map<String, Object> context, Map<String, Object> payload) {
-        System.out.println("stdout");
-        System.out.println("stdout2");
-        System.err.println("stderr");
-        System.err.println("stderr2");
+        final Object name = payload.getOrDefault("name", "SOMEONE");
 
-        return "";
+        if (name instanceof String) {
+            return ((String) name).toLowerCase();
+        } else {
+            throw new IllegalArgumentException("name is not of type string");
+        }
     }
 }

@@ -1,7 +1,7 @@
 # java-base-image
 Java language support for Dispatch
 
-Latest image [on Docker Hub](https://hub.docker.com/r/dispatchframework/java-base/): `dispatchframework/java-base:0.0.3`
+Latest image [on Docker Hub](https://hub.docker.com/r/dispatchframework/java-base/): `dispatchframework/java-base:0.0.4`
 
 ## Usage
 
@@ -11,7 +11,7 @@ You need a recent version of Dispatch [installed in your Kubernetes cluster, Dis
 
 To add the base-image to Dispatch:
 ```bash
-$ dispatch create base-image java-base dispatchframework/java-base:0.0.3
+$ dispatch create base-image java-base dispatchframework/java-base:0.0.4
 ```
 
 Make sure the base-image status is `READY` (it normally goes from `INITIALIZED` to `READY`):
@@ -123,6 +123,49 @@ $ dispatch exec --json --input '{"name": "Jon"}' --wait hello
     "tags": []
 }
 ```
+
+## Error Handling
+
+There are three types of errors that can be thrown when invoking a function:
+* `InputError`
+* `FunctionError`
+* `SystemError`
+
+`SystemError` represents an error in the Dispatch infrastructure. `InputError` represents an error in the input detected either early in the function itself or through input schema validation. `FunctionError` represents an error in the function logic or an output schema validation error.
+
+Functions themselves can either throw `InputError` or `FunctionError`
+
+### Input Validation
+
+For Java, the following exceptions thrown from the function are considered `InputError`:
+* **`IllegalArgumentException`**
+
+All other exceptions thrown from the function are considered `FunctionError`.
+
+To validate input in the function body:
+```java
+package io.dispatchframework.javabaseimage;
+
+import java.util.Map;
+import java.util.function.BiFunction;
+
+public class Lower implements BiFunction<Map<String, Object>, Map<String, Object>, String> {
+    @Override
+    public String apply(Map<String, Object> context, Map<String, Object> payload) {
+        final Object name = payload.getOrDefault("name", "SOMEONE");
+
+        if (name instanceof String) {
+            return ((String) name).toLowerCase();
+        } else {
+            throw new IllegalArgumentException("name is not of type string");
+        }
+    }
+}
+```
+
+### Note
+
+Since **`IllegalArgumentException`** is considered an `InputError`, functions should not throw it unless explicitly thrown due to an input validation error. Functions should catch and handle **`IllegalArgumentException`** accordingly if it should not be classified as an `InputError`. 
 
 ## Spring Support
 The Java language base image now supports initialization of a Spring application context to support functions that rely on Spring framework components. For now this support relies on as few Spring components as possible to remain compatibile with as many Spring versions as possible. Further the base image supports choosing whether to start the application context based on the presence of Spring classes on the classpath. As long as the `org.springframework.beans.factory.BeanFactory` class is on the classpath, the function image will start an `AnnotationConfigApplicationContext`.

@@ -23,15 +23,32 @@ public class Entrypoint {
         }
 
         Server server;
-        if (springInClasspath) {
-            // run spring function server
-            server = new SpringFunctionServer(args);
-        } else {
-            // run plain old java function server
-            server = new POJFunctionServer(args[0], args[1]);
+        try {
+            if (springInClasspath) {
+                // run spring function server
+                server = new SpringFunctionServer(args);
+            } else {
+                // run plain old java function server
+                server = new POJFunctionServer(args[0], args[1]);
+            }
+        } catch (Exception ex) {
+            server = new ErrorServer(ex, springInClasspath);
         }
 
-        server.start();
+        try {
+            server.start();
+        } catch (Exception ex) {
+            server.stop();
+
+            // Don't create another ErrorServer if ErrorServer.start fails
+            if (server instanceof ErrorServer) {
+                throw ex;
+            } else {
+                server = new ErrorServer(ex, springInClasspath);
+                server.start();
+            }
+        }
+
         synchronized (server) {
             server.wait();
         }
