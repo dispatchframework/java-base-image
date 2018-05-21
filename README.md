@@ -1,7 +1,7 @@
 # java-base-image
 Java language support for Dispatch
 
-Latest image [on Docker Hub](https://hub.docker.com/r/dispatchframework/java-base/): `dispatchframework/java-base:0.0.4`
+Latest image [on Docker Hub](https://hub.docker.com/r/dispatchframework/java-base/): `dispatchframework/java-base:0.0.5`
 
 ## Usage
 
@@ -11,7 +11,7 @@ You need a recent version of Dispatch [installed in your Kubernetes cluster, Dis
 
 To add the base-image to Dispatch:
 ```bash
-$ dispatch create base-image java-base dispatchframework/java-base:0.0.4
+$ dispatch create base-image java-base dispatchframework/java-base:0.0.5
 ```
 
 Make sure the base-image status is `READY` (it normally goes from `INITIALIZED` to `READY`):
@@ -84,7 +84,8 @@ public class Hello implements BiFunction<Map<String, Object>, Map<String, Object
 ```
 
 ```bash
-$ dispatch create function java-mylibs hello ./Hello.java
+$ dispatch create function hello ./Hello.java --image=java-mylibs
+    --handler=io.dispatchframework.examples.Hello
 ```
 
 Make sure the function status is `READY` (it normally goes from `INITIALIZED` to `READY`):
@@ -166,6 +167,33 @@ public class Lower implements BiFunction<Map<String, Object>, Map<String, Object
 ### Note
 
 Since **`IllegalArgumentException`** is considered an `InputError`, functions should not throw it unless explicitly thrown due to an input validation error. Functions should catch and handle **`IllegalArgumentException`** accordingly if it should not be classified as an `InputError`. 
+
+## Building from source directory
+
+To build a function from a source directory, the directory should follow the [maven directory structure](https://maven.apache.org/guides/introduction/introduction-to-the-standard-directory-layout.html):
+
+```
+/src/main/java/
+/target/lib/
+```
+
+`/src/main/java` will hold the source code and `/target/lib` will hold the dependencies. For example, if you had a Hello class with a gson dependency:
+```
+/src/main/java/io/dispatchframework/examples/Hello.java
+/target/lib/gson-2.8.2.jar
+```
+
+Suppose your project was contained in the directory `/my-project`:
+```
+/my-project/src/main/java/io/dispatchframework/examples/Hello.java
+/my-project/target/lib/gson-2.8.2.jar
+```
+
+To create the function from the source directory:
+```bash
+dispatch create function hello /my-project --image=java 
+  --handler=io.dispatchframework.examples.Hello
+```
 
 ## Spring Support
 The Java language base image now supports initialization of a Spring application context to support functions that rely on Spring framework components. For now this support relies on as few Spring components as possible to remain compatibile with as many Spring versions as possible. Further the base image supports choosing whether to start the application context based on the presence of Spring classes on the classpath. As long as the `org.springframework.beans.factory.BeanFactory` class is on the classpath, the function image will start an `AnnotationConfigApplicationContext`.
