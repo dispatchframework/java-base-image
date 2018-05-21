@@ -1,23 +1,21 @@
 ARG IMAGE
 FROM ${IMAGE}
 
-ARG FUNCTION_SRC=function.txt
+ARG HANDLER
+ENV HANDLER=$HANDLER
 
-COPY ${FUNCTION_SRC} .
+WORKDIR ${WORKDIR}
+
+COPY . .
+
+# Check if handler is in directory, if not (single file) create directory and move it
+RUN [ -f src/main/java/$(echo ${HANDLER} | sed 's:\.:\/:g').java ] || \ 
+    (mkdir -p src/main/java/$(echo "${HANDLER%.*}" | sed 's:\.:\/:g') && \
+    mv "${HANDLER##*.}".java src/main/java/$(echo ${HANDLER} | sed 's:\.:\/:g').java)
 
 # Package function server
 RUN mvn package -Dmaven.test.skip=true
 
-# Package name
-RUN while read -r _ a _; do echo "$a" ; done <<< $(cat ${FUNCTION_SRC} | grep "^[ $(printf '\t')]*package" | head -1) | sed s'/;*$//' > /tmp/package
-
-# Class name
-RUN while read -r _ _ a _; do echo "$a" ; done <<< $(cat ${FUNCTION_SRC} | sed -e "s/static//" | grep "^[ $(printf '\t')]*public[ $(printf '\t')]*class" | head -1) > /tmp/class
-
-# Copy source file
-RUN mkdir -p src/main/java/$(cat /tmp/package | sed 's:\.:\/:g')
-RUN mv ${FUNCTION_SRC} src/main/java/$(cat /tmp/package | sed 's:\.:\/:g')/$(cat /tmp/class).java
-
 # Compile source files
 RUN mkdir -p target/classes
-RUN javac -d "target/classes" -cp "target/lib/*" src/main/java/$(cat /tmp/package | sed 's:\.:\/:g')/$(cat /tmp/class).java
+RUN javac -d "target/classes" -cp "target/lib/*" src/main/java/$(echo ${HANDLER} | sed 's:\.:\/:g').java
