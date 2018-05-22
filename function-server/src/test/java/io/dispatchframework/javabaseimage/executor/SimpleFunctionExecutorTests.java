@@ -18,9 +18,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.dispatchframework.javabaseimage.ErrorType;
-import io.dispatchframework.javabaseimage.Handlers.Fail;
-import io.dispatchframework.javabaseimage.Handlers.Hello;
-import io.dispatchframework.javabaseimage.Handlers.Lower;
+import io.dispatchframework.javabaseimage.handlers.Fail;
+import io.dispatchframework.javabaseimage.handlers.Hello;
+import io.dispatchframework.javabaseimage.handlers.Lower;
 import io.dispatchframework.javabaseimage.SimpleFunctionExecutor;
 
 /**

@@ -30,10 +30,9 @@ public final class HttpHandlers {
         final BiFunction f;
         final FunctionExecutor executor;
 
-        public ExecFunction(String packageName, String className)
-                throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-            Class<?> functionClass = Class.forName(packageName + "." + className);
-            this.f = (BiFunction) functionClass.newInstance();
+        public ExecFunction(Class handler)
+                throws InstantiationException, IllegalAccessException {
+            this.f = (BiFunction) handler.newInstance();
             executor = new SimpleFunctionExecutor(f);
         }
 

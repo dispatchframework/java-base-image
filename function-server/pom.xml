@@ -4,12 +4,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.dispatchframework.javabaseimage</groupId>
     <artifactId>function-server</artifactId>
-    <version>1.0.0</version>
+    <version>0.0.7-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>10</maven.compiler.source>
+        <maven.compiler.target>10</maven.compiler.target>
         <maven.surefire.version>2.21.0</maven.surefire.version>
 
         <undertow.version>2.0.3.Final</undertow.version>
@@ -100,13 +101,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <version>${spring.framework.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${spring.framework.version}</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

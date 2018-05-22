@@ -4,32 +4,38 @@
 ///////////////////////////////////////////////////////////////////////
 package io.dispatchframework.javabaseimage;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import io.dispatchframework.javabaseimage.handlers.AbstractHandler;
+import io.dispatchframework.javabaseimage.handlers.BadHandler;
+import io.dispatchframework.javabaseimage.handlers.GoodHandler;
+import io.dispatchframework.javabaseimage.handlers.PrivateHandler;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class HttpHandlersTest {
-    private static final String packageName = "io.dispatchframework.javabaseimage.Handlers";
+    private static final String packageName = "io.dispatchframework.javabaseimage.handlers";
 
     @Test
     public void getBiFunctionTypes_WithInterface() throws Exception {
-        HttpHandlers.ExecFunction goodHandler = new HttpHandlers.ExecFunction(packageName, "GoodHandler");
+        HttpHandlers.ExecFunction goodHandler = new HttpHandlers.ExecFunction(GoodHandler.class);
         assertNotNull(goodHandler.executor);
         assertNotNull(goodHandler.f);
     }
 
     @Test
     public void getBiFunctionTypes_WithoutInterface() {
-        assertThrows(ClassCastException.class, () -> new HttpHandlers.ExecFunction(packageName, "BadHandler"));
+        assertThrows(ClassCastException.class, () -> new HttpHandlers.ExecFunction(BadHandler.class));
     }
 
     @Test
     public void execFunction_WithAbstractBiFunction() {
-        assertThrows(InstantiationException.class, () -> new HttpHandlers.ExecFunction(packageName, "AbstractHandler"));
+        assertThrows(InstantiationException.class, () -> new HttpHandlers.ExecFunction(AbstractHandler.class));
     }
 
     @Test
     public void execFunction_WithPrivateBiFunctionConstructor() {
-        assertThrows(IllegalAccessException.class, () -> new HttpHandlers.ExecFunction(packageName, "PrivateHandler"));
+        assertThrows(IllegalAccessException.class, () -> new HttpHandlers.ExecFunction(PrivateHandler.class));
     }
+
 }
