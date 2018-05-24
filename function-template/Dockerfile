@@ -4,6 +4,8 @@ FROM ${IMAGE}
 ARG HANDLER
 ENV HANDLER=$HANDLER
 
+RUN ([ -n "${HANDLER}" ] || (echo "HANDLER is required for Java" >&2 && exit 1))
+
 WORKDIR ${WORKDIR}
 
 COPY . .
