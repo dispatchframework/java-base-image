@@ -14,6 +14,6 @@ RUN packages=$(cat ${SYSTEM_PACKAGES_FILE} | sed 's/ /-/' | uniq | paste -d' ' -
 ARG PACKAGES_FILE=packages.txt
 COPY ${PACKAGES_FILE} pom.xml
 
-RUN pj=$(cat pom.xml); [ -n "${pj}" ] && mvn dependency:go-offline && cp pom.xml ${WORKDIR} || :
+RUN pj=$(cat pom.xml); ([ -n "${pj}" ] || cp empty-pom.xml pom.xml) && mvn dependency:go-offline && cp pom.xml ${WORKDIR} || :
 
 WORKDIR ${WORKDIR}
