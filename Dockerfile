@@ -14,6 +14,8 @@ LABEL io.dispatchframework.imageTemplate="${IMAGE_TEMPLATE}" \
 COPY image-template ${IMAGE_TEMPLATE}/
 COPY function-template ${FUNCTION_TEMPLATE}/
 
+RUN cp ${IMAGE_TEMPLATE}/empty-pom.xml /root
+
 COPY function-server /function-server/
 WORKDIR /function-server
 RUN mvn install && cd cp-gen && mvn dependency:build-classpath -Dmdep.outputFile=../cp.txt
