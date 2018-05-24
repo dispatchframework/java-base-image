@@ -15,12 +15,14 @@ COPY image-template ${IMAGE_TEMPLATE}/
 COPY function-template ${FUNCTION_TEMPLATE}/
 
 COPY function-server /function-server/
+WORKDIR /function-server
+RUN mvn install && cd cp-gen && mvn dependency:build-classpath -Dmdep.outputFile=../cp.txt
 
-ENV WORKDIR=/function-server PORT=8080
+
+ENV WORKDIR=/function PORT=8080
 
 EXPOSE ${PORT}
 WORKDIR ${WORKDIR}
 
-RUN mvn dependency:copy-dependencies -DoutputDirectory=target/lib -DincludeScope=runtime
 
-CMD java -cp target/classes:target/*:target/lib/* io.dispatchframework.javabaseimage.Entrypoint "${HANDLER%.*}" "${HANDLER##*.}"
+CMD java -cp target/classes:$(<./cp.txt):$(</function-server/cp.txt) io.dispatchframework.javabaseimage.Entrypoint "${HANDLER}"

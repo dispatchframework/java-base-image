@@ -14,9 +14,9 @@ import io.undertow.Undertow;
 public class POJFunctionServer implements Server {
     private Undertow undertow;
 
-    public POJFunctionServer(String packageName, String className) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public POJFunctionServer(Class handler) throws Exception {
         undertow = Undertow.builder().addHttpListener(8080, "0.0.0.0").setHandler(Handlers.path()
-                .addPrefixPath("/", new HttpHandlers.ExecFunction(packageName, className)).addExactPath("/healthz", new HttpHandlers.Healthz()))
+                .addPrefixPath("/", new HttpHandlers.ExecFunction(handler)).addExactPath("/healthz", new HttpHandlers.Healthz()))
                 .build();
     }
 

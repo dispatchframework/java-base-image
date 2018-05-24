@@ -4,56 +4,32 @@
 ///////////////////////////////////////////////////////////////////////
 package io.dispatchframework.javabaseimage;
 
+import org.springframework.context.annotation.Configuration;
+
 /**
  * Main entry point for starting the function handling server
  */
 public class Entrypoint {
 
-    /**
-     * @param args
-     * @throws Exception
-     */
     public static void main(String[] args) throws Exception {
 
-        boolean springInClasspath = true;
-        try {
-            Class.forName("org.springframework.beans.factory.BeanFactory");
-        } catch (Exception e) {
-            springInClasspath = false;
-        }
+        Class c = Class.forName(args[0]);
 
-        Server server;
-        try {
-            if (springInClasspath) {
-                // run spring function server
-                server = new SpringFunctionServer(args);
-            } else {
-                // run plain old java function server
-                server = new POJFunctionServer(args[0], args[1]);
-            }
-        } catch (Exception ex) {
-            server = new ErrorServer(ex, springInClasspath);
-        }
+        Server server = (isSpringAnnotated(c) ? new SpringFunctionServer(c) : new POJFunctionServer(c));
 
         try {
+            System.err.printf("Starting Function Server for '%s'\n", args[0]);
             server.start();
-        } catch (Exception ex) {
-            server.stop();
-
-            // Don't create another ErrorServer if ErrorServer.start fails
-            if (server instanceof ErrorServer) {
-                throw ex;
-            } else {
-                server = new ErrorServer(ex, springInClasspath);
-                server.start();
+            synchronized (server) {
+                server.wait();
             }
+        } finally {
+            server.stop();
         }
+    }
 
-        synchronized (server) {
-            server.wait();
-        }
-
-        server.stop();
+    public static boolean isSpringAnnotated(Class c) {
+        return c.getAnnotation(Configuration.class) != null;
     }
 
 }

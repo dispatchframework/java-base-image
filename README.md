@@ -1,7 +1,7 @@
 # java-base-image
 Java language support for Dispatch
 
-Latest image [on Docker Hub](https://hub.docker.com/r/dispatchframework/java-base/): `dispatchframework/java-base:0.0.5`
+Latest image [on Docker Hub](https://hub.docker.com/r/dispatchframework/java-base/): `dispatchframework/java-base:0.0.6`
 
 ## Usage
 
@@ -11,7 +11,7 @@ You need a recent version of Dispatch [installed in your Kubernetes cluster, Dis
 
 To add the base-image to Dispatch:
 ```bash
-$ dispatch create base-image java-base dispatchframework/java-base:0.0.5
+$ dispatch create base-image java-base dispatchframework/java-base:0.0.6
 ```
 
 Make sure the base-image status is `READY` (it normally goes from `INITIALIZED` to `READY`):

@@ -16,8 +16,8 @@ public class SpringFunctionServer implements Server {
 
     private AnnotationConfigApplicationContext ctx;
 
-    public SpringFunctionServer(String[] args) throws ClassNotFoundException {
-        this.clazz = Class.forName(args[0] + "." + args[1]);
+    public SpringFunctionServer(Class c) {
+        this.clazz = c;
     }
 
     public void start() {

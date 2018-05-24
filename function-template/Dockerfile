@@ -8,14 +8,4 @@ WORKDIR ${WORKDIR}
 
 COPY . .
 
-# Check if handler is in directory, if not (single file) create directory and move it
-RUN [ -f src/main/java/$(echo ${HANDLER} | sed 's:\.:\/:g').java ] || \ 
-    (mkdir -p src/main/java/$(echo "${HANDLER%.*}" | sed 's:\.:\/:g') && \
-    mv "${HANDLER##*.}".java src/main/java/$(echo ${HANDLER} | sed 's:\.:\/:g').java)
-
-# Package function server
-RUN mvn package -Dmaven.test.skip=true
-
-# Compile source files
-RUN mkdir -p target/classes
-RUN javac -d "target/classes" -cp "target/lib/*" src/main/java/$(echo ${HANDLER} | sed 's:\.:\/:g').java
+RUN mvn compile -Dmaven.test.skip=true -Dproject.build.sourceEncoding=UTF-8 -Dmaven.compiler.source=10 -Dmaven.compiler.target=10 dependency:build-classpath -Dmdep.outputFile=./cp.txt
