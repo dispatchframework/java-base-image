@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Map;
 import java.util.function.BiFunction;
 
+import io.dispatchframework.javabaseimage.handlers.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +32,7 @@ public class SimpleFunctionExecutorTests {
 
     private static BiFunction<Map<String, Object>, Map<String, Object>, String> helloFunction;
 
-    @BeforeAll()
+    @BeforeAll
     private static void setup() {
         helloFunction = new Hello();
     }
@@ -52,7 +53,7 @@ public class SimpleFunctionExecutorTests {
         assertNotNull(executor);
     }
 
-    @Test()
+    @Test
     public void test_constructor_illegalBiFunction() {
         BiFunction principal = (a, b) -> "";
 
@@ -78,12 +79,21 @@ public class SimpleFunctionExecutorTests {
         assertEquals(expected, actual);
     }
 
-    @Test()
+    @Test
     public void test_execute_empty() {
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction);
 
         String expected = "{\"context\":{\"error\":null,\"logs\":{\"stderr\":[],\"stdout\":[]}},\"payload\":\"Hello, Someone from Somewhere\"}";
         String actual = principal.execute("{}");
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void test_execute_logging() {
+        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(new Logger());
+
+        String expected = "{\"context\":{\"error\":null,\"logs\":{\"stderr\":[\"stderr\",\"stderr2\"],\"stdout\":[\"stdout\",\"stdout2\"]}},\"payload\":\"\"}";
+        String actual = principal.execute("{\"context\": null, \"payload\": null}");
         assertEquals(expected, actual);
     }
 

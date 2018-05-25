@@ -14,8 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class HttpHandlersTest {
-    private static final String packageName = "io.dispatchframework.javabaseimage.handlers";
-
     @Test
     public void getBiFunctionTypes_WithInterface() throws Exception {
         HttpHandlers.ExecFunction goodHandler = new HttpHandlers.ExecFunction(GoodHandler.class);
