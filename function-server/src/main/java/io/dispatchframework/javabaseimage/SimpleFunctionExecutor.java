@@ -8,6 +8,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
 
 import com.google.gson.Gson;
@@ -67,14 +75,40 @@ public class SimpleFunctionExecutor implements FunctionExecutor {
             }
 
             if (err == null) {
+                Map<Object, Object> context = (Map<Object, Object>) req.getContext();
+                Object payload = req.getPayload();
+                Double timeout = (Double) context.getOrDefault("timeout", 0);
+                Callable<Object> callable = () -> {
+                    return f.apply(context, payload);
+                };
+
+                ExecutorService executorService = Executors.newSingleThreadExecutor();
+                Future<Object> future = executorService.submit(callable);
                 try {
-                    r = f.apply(req.getContext(), req.getPayload());
-                } catch (IllegalArgumentException ex) {
-                    err = new Error(ex, ErrorType.INPUT_ERROR);
-                    ex.printStackTrace();
-                } catch (Exception ex) {
-                    err = new Error(ex, ErrorType.FUNCTION_ERROR);
-                    ex.printStackTrace();
+                    if (timeout == 0) {
+                        r = future.get();
+                    } else {
+                        r = future.get(new Double(timeout).longValue(), TimeUnit.MILLISECONDS);
+                    }
+                } catch (NumberFormatException e) {
+                    err = new Error(e, ErrorType.INPUT_ERROR);
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    err = new Error(e, ErrorType.SYSTEM_ERROR);
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    if (e.getCause() instanceof IllegalArgumentException) {
+                        err = new Error(e, ErrorType.INPUT_ERROR);
+                    } else {
+                        err = new Error(e, ErrorType.FUNCTION_ERROR);
+                    }
+                    e.printStackTrace();
+                } catch (TimeoutException e) {
+                    err = new Error(e, ErrorType.SYSTEM_ERROR);
+                    Entrypoint.healthy = false;
+                    e.printStackTrace();
+                } finally {
+                    future.cancel(true);
                 }
             }
         } finally {

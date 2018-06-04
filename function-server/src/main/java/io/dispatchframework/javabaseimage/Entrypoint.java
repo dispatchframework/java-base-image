@@ -11,9 +11,11 @@ import org.springframework.context.annotation.Configuration;
  */
 public class Entrypoint {
 
+    public static boolean healthy = true;
+
     public static void main(String[] args) throws Exception {
 
-        Class c = Class.forName(args[0]);
+        Class<?> c = Class.forName(args[0]);
 
         Server server = (isSpringAnnotated(c) ? new SpringFunctionServer(c) : new POJFunctionServer(c));
 
@@ -28,7 +30,7 @@ public class Entrypoint {
         }
     }
 
-    public static boolean isSpringAnnotated(Class c) {
+    public static boolean isSpringAnnotated(Class<?> c) {
         return c.getAnnotation(Configuration.class) != null;
     }
 

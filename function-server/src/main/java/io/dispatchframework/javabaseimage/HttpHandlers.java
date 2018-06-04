@@ -50,6 +50,9 @@ public final class HttpHandlers {
         @Override
         public void handleRequest(final HttpServerExchange exchange) {
             exchange.getRequestReceiver().receiveFullString((httpServerExchange, message) -> {
+                if (!Entrypoint.healthy) {
+                    httpServerExchange.setStatusCode(500);
+                }
                 String jsonResponse = "{}";
                 httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
                 httpServerExchange.getResponseSender().send(jsonResponse);

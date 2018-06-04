@@ -31,6 +31,9 @@ public class HealthzServlet implements Servlet {
 
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+        if (!Entrypoint.healthy) {
+            throw new ServletException("Service not healthy.");
+        }
         res.setContentType("application/json");
         try (Writer writer = res.getWriter()) {
             writer.append("{}");
