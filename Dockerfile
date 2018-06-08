@@ -29,4 +29,4 @@ EXPOSE ${PORT}
 WORKDIR ${WORKDIR}
 
 
-CMD java -cp target/classes:$(<./cp.txt):$(</function-server/cp.txt) io.dispatchframework.javabaseimage.Entrypoint "${HANDLER}"
+CMD java -cp target/classes:$(<./cp.txt):$(</function-server/cp.txt) io.dispatchframework.javabaseimage.Entrypoint $(cat /tmp/handler)
