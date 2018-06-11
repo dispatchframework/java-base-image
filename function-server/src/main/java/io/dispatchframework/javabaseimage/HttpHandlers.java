@@ -5,6 +5,7 @@
 package io.dispatchframework.javabaseimage;
 
 import java.io.IOException;
+import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
 
 import com.google.gson.Gson;
@@ -30,7 +31,7 @@ public final class HttpHandlers {
         public ExecFunction(Class handler)
                 throws InstantiationException, IllegalAccessException {
             this.f = (BiFunction) handler.newInstance();
-            executor = new SimpleFunctionExecutor(f);
+            executor = new SimpleFunctionExecutor(f, Executors.newSingleThreadExecutor());
         }
 
         @Override

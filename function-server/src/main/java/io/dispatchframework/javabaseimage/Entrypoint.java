@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
  */
 public class Entrypoint {
 
-    public static boolean healthy = true;
+    public static volatile boolean healthy = true;
 
     public static void main(String[] args) throws Exception {
 

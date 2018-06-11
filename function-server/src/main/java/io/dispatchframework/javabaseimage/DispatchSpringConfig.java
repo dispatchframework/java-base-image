@@ -4,6 +4,8 @@
 ///////////////////////////////////////////////////////////////////////
 package io.dispatchframework.javabaseimage;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
 
 import javax.servlet.Servlet;
@@ -27,9 +29,14 @@ import io.undertow.servlet.util.ImmediateInstanceFactory;
 @Configuration
 public class DispatchSpringConfig {
 
+    @Bean("executorService")
+    ExecutorService executorService() {
+        return Executors.newSingleThreadExecutor();
+    }
+
     @Bean("springServlet")
-    Servlet springServlet(BiFunction f) {
-        return new SpringFunctionServlet(f);
+    Servlet springServlet(BiFunction f, ExecutorService executorService) {
+        return new SpringFunctionServlet(f, executorService);
     }
 
     @Bean

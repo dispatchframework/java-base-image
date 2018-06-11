@@ -33,9 +33,11 @@ public class SimpleFunctionExecutor implements FunctionExecutor {
 
     private BiFunction f;
     private Type[] biFunctionTypes;
+    private ExecutorService executorService;
 
-    public SimpleFunctionExecutor(BiFunction f) {
+    public SimpleFunctionExecutor(BiFunction f, ExecutorService executorService) {
         this.f = f;
+        this.executorService = executorService;
 
         this.biFunctionTypes = getBiFunctionTypes(f.getClass());
         if (biFunctionTypes == null || biFunctionTypes.length != 3) {
@@ -75,40 +77,10 @@ public class SimpleFunctionExecutor implements FunctionExecutor {
             }
 
             if (err == null) {
-                Map<Object, Object> context = (Map<Object, Object>) req.getContext();
-                Object payload = req.getPayload();
-                Double timeout = (Double) context.getOrDefault("timeout", 0);
-                Callable<Object> callable = () -> {
-                    return f.apply(context, payload);
-                };
-
-                ExecutorService executorService = Executors.newSingleThreadExecutor();
-                Future<Object> future = executorService.submit(callable);
                 try {
-                    if (timeout == 0) {
-                        r = future.get();
-                    } else {
-                        r = future.get(new Double(timeout).longValue(), TimeUnit.MILLISECONDS);
-                    }
-                } catch (NumberFormatException e) {
-                    err = new Error(e, ErrorType.INPUT_ERROR);
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    err = new Error(e, ErrorType.SYSTEM_ERROR);
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    if (e.getCause() instanceof IllegalArgumentException) {
-                        err = new Error(e, ErrorType.INPUT_ERROR);
-                    } else {
-                        err = new Error(e, ErrorType.FUNCTION_ERROR);
-                    }
-                    e.printStackTrace();
-                } catch (TimeoutException e) {
-                    err = new Error(e, ErrorType.SYSTEM_ERROR);
-                    Entrypoint.healthy = false;
-                    e.printStackTrace();
-                } finally {
-                    future.cancel(true);
+                    r = withTimeout(f, req.getContext(), req.getPayload());
+                } catch (DispatchException e) {
+                    err = e.getError();
                 }
             }
         } finally {
@@ -155,4 +127,35 @@ public class SimpleFunctionExecutor implements FunctionExecutor {
         return genericTypes;
     }
 
+    public Object withTimeout(BiFunction f, Object context, Object payload) throws DispatchException {
+        Double timeout = context == null ? 0.0 :  (Double) ((Map<Object, Object>) context).getOrDefault("timeout", 0.0);
+        Callable<Object> callable = () -> {
+            return f.apply(context, payload);
+        };
+
+        Future<Object> future = executorService.submit(callable);
+        try {
+            if (timeout == 0) {
+                return future.get();
+            } else {
+                return future.get(timeout.longValue(), TimeUnit.MILLISECONDS);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new DispatchException(new Error(e, ErrorType.SYSTEM_ERROR));
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            if (e.getCause() instanceof IllegalArgumentException) {
+                throw new DispatchException(new Error(e, ErrorType.INPUT_ERROR));
+            } else {
+                throw new DispatchException(new Error(e, ErrorType.FUNCTION_ERROR));
+            }
+        } catch (TimeoutException e) {
+            Entrypoint.healthy = false;
+            e.printStackTrace();
+            throw new DispatchException(new Error(e, ErrorType.FUNCTION_ERROR));
+        } finally {
+            future.cancel(true);
+        }
+    }
 }

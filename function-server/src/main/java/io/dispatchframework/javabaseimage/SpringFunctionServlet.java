@@ -7,6 +7,7 @@ package io.dispatchframework.javabaseimage;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.concurrent.ExecutorService;
 import java.util.function.BiFunction;
 
 import javax.servlet.Servlet;
@@ -23,8 +24,8 @@ public class SpringFunctionServlet implements Servlet {
 
     private FunctionExecutor executor;
 
-    public SpringFunctionServlet(BiFunction f) {
-        this.executor = new SimpleFunctionExecutor(f);
+    public SpringFunctionServlet(BiFunction f, ExecutorService executorService) {
+        this.executor = new SimpleFunctionExecutor(f, executorService);
     }
 
     @Override
