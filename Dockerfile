@@ -28,5 +28,7 @@ ENV WORKDIR=/function PORT=8080
 EXPOSE ${PORT}
 WORKDIR ${WORKDIR}
 
+# OpenFaaS readiness check depends on this file
+RUN touch /tmp/.lock
 
 CMD java -cp target/classes:$(<./cp.txt):$(</function-server/cp.txt) io.dispatchframework.javabaseimage.Entrypoint $(cat /tmp/handler)

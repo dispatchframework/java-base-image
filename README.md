@@ -1,7 +1,7 @@
 # java-base-image
 Java language support for Dispatch
 
-Latest image [on Docker Hub](https://hub.docker.com/r/dispatchframework/java-base/): `dispatchframework/java-base:0.0.9`
+Latest image [on Docker Hub](https://hub.docker.com/r/dispatchframework/java-base/)
 
 ## Usage
 
@@ -11,7 +11,7 @@ You need a recent version of Dispatch [installed in your Kubernetes cluster, Dis
 
 To add the base-image to Dispatch:
 ```bash
-$ dispatch create base-image java-base dispatchframework/java-base:0.0.9
+$ dispatch create base-image java-base dispatchframework/java-base:<tag>
 ```
 
 Make sure the base-image status is `READY` (it normally goes from `INITIALIZED` to `READY`):
@@ -62,7 +62,7 @@ $ dispatch get image java-mylibs
 
 Using the Java base-image, you can create Dispatch functions from Java source files. The file can require any libraries from the image (see above).
 
-The only requirement is: a public class must be declared implementing the [**BiFunction interface**](https://docs.oracle.com/javase/8/docs/api/java/util/function/BiFunction.html) and must override the **`apply`** method, which accepts two arguments (`context` and `payload`), for example:  
+The only requirement is: a public class must be declared implementing the [**BiFunction interface**](https://docs.oracle.com/javase/8/docs/api/java/util/function/BiFunction.html) and must override the **`apply`** method, which accepts two arguments (`context` and `payload`), for example:
 ```bash
 $ cat ./Hello.java
 ```
@@ -166,7 +166,7 @@ public class Lower implements BiFunction<Map<String, Object>, Map<String, Object
 
 ### Note
 
-Since **`IllegalArgumentException`** is considered an `InputError`, functions should not throw it unless explicitly thrown due to an input validation error. Functions should catch and handle **`IllegalArgumentException`** accordingly if it should not be classified as an `InputError`. 
+Since **`IllegalArgumentException`** is considered an `InputError`, functions should not throw it unless explicitly thrown due to an input validation error. Functions should catch and handle **`IllegalArgumentException`** accordingly if it should not be classified as an `InputError`.
 
 ## Building from source directory
 
@@ -191,7 +191,7 @@ Suppose your project was contained in the directory `/my-project`:
 
 To create the function from the source directory:
 ```bash
-dispatch create function hello /my-project --image=java 
+dispatch create function hello /my-project --image=java
   --handler=io.dispatchframework.examples.Hello
 ```
 
