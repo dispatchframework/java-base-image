@@ -316,7 +316,8 @@ The important thing to note about this function file is that the top level class
 
 To create this function we run
 ```bash
-dispatch create function java-spring spring-fn ./HelloSpring.java
+dispatch create function spring-fn ./HelloSpring.java --image=java-spring
+    --handler=io.dispatchframework.examples.HelloSpring
 ```
 
 Again wait for the function status to show as `READY`
