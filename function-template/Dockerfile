@@ -12,8 +12,10 @@ RUN mvn compile -Dmaven.test.skip=true -Dproject.build.sourceEncoding=UTF-8 -Dma
 
 # Create handler file if passed in otherwise extract handler info
 RUN echo -n ${HANDLER} > /tmp/handler
-RUN if ([ -z "${HANDLER}" ] && [ $(ls *.java | wc -l) -eq "1" ]); then \
-    javac -cp .:$(<./cp.txt) -d . $(ls *.java) && \
+RUN if [ -z "${HANDLER}" ]; then \
+    ([ $(ls *.java | wc -l) -eq "1" ] || (echo "Exactly 1 source file needed when HANDLER is empty" >&2 && exit 1)) && \
+    (javac -cp .:$(<./cp.txt) -d . $(ls *.java) || \
+        (echo "Could not compile source file $(ls *.java)" >&2 && exit 1)) && \
     dir=$(ls -d */) && \
     package=$(find ${dir} -type d | tail -n 1 | sed 's:\/:\.:g') && \
     class=$(ls *.java) && \
@@ -24,7 +26,8 @@ RUN if ([ -z "${HANDLER}" ] && [ $(ls *.java | wc -l) -eq "1" ]); then \
 
 # If single file and handler arg is passed in
 RUN if ([ -n "${HANDLER}" ] && [ $(ls *.java | wc -l) -eq "1" ]); then \
-    javac -cp .:$(<./cp.txt) "${HANDLER##*.}".java && \
+    (javac -cp .:$(<./cp.txt) "${HANDLER##*.}".java || \
+        (echo "Could not compile source file ${HANDLER##*.}.java" >&2 && exit 1)) && \
     package=$(echo -n "${HANDLER%.*}" | sed 's:\.:\/:g') && \
     mkdir -p target/classes/${package} && \
     mv *.class target/classes/${package}; fi

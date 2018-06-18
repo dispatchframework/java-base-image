@@ -8,12 +8,12 @@ ARG SYSTEM_PACKAGES_FILE=system-packages.txt
 COPY ${SYSTEM_PACKAGES_FILE} .
 
 RUN packages=$(cat ${SYSTEM_PACKAGES_FILE} | sed 's/ /-/' | uniq | paste -d' ' -); \
-    [ -n "${packages}" ] && tdnf install -y ${packages} || :
+    if [ -n "${packages}" ]; then tdnf install -y ${packages}; fi
 
 
 ARG PACKAGES_FILE=packages.txt
 COPY ${PACKAGES_FILE} pom.xml
 
-RUN pj=$(cat pom.xml); ([ -n "${pj}" ] || cp empty-pom.xml pom.xml) && mvn dependency:go-offline && cp pom.xml ${WORKDIR} || :
+RUN pj=$(cat pom.xml); ([ -n "${pj}" ] || cp empty-pom.xml pom.xml) && mvn dependency:go-offline && cp pom.xml ${WORKDIR}
 
 WORKDIR ${WORKDIR}
