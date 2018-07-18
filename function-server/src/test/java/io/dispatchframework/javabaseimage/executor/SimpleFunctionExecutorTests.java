@@ -8,31 +8,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
 
 import io.dispatchframework.javabaseimage.handlers.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-
 import io.dispatchframework.javabaseimage.DispatchException;
 import io.dispatchframework.javabaseimage.ErrorType;
 import io.dispatchframework.javabaseimage.handlers.Fail;
@@ -78,7 +61,7 @@ public class SimpleFunctionExecutorTests {
     }
 
     @Test
-    public void test_execute_success() {
+    public void test_execute_success() throws DispatchException {
 
         BiFunction<Map<Object, Object>, String, String> successFunction = new BiFunction<Map<Object, Object>, String, String>() {
 
@@ -97,7 +80,7 @@ public class SimpleFunctionExecutorTests {
     }
 
     @Test
-    public void test_execute_empty() {
+    public void test_execute_empty() throws DispatchException {
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction, executorService);
 
         String expected = "{\"context\":{\"error\":null,\"logs\":{\"stderr\":[],\"stdout\":[]}},\"payload\":\"Hello, Someone from Somewhere\"}";
@@ -106,7 +89,7 @@ public class SimpleFunctionExecutorTests {
     }
 
     @Test
-    public void test_execute_logging() {
+    public void test_execute_logging() throws DispatchException {
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(new Logger(), executorService);
 
         String expected = "{\"context\":{\"error\":null,\"logs\":{\"stderr\":[\"stderr\",\"stderr2\"],\"stdout\":[\"stdout\",\"stdout2\"]}},\"payload\":\"\"}";
@@ -115,7 +98,7 @@ public class SimpleFunctionExecutorTests {
     }
 
     @Test
-    public void test_execute_mismatchedPayload() {
+    public void test_execute_mismatchedPayload() throws DispatchException {
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction, executorService);
 
         String message = "{\"context\": null, \"payload\": \"invalid\"}";
@@ -124,7 +107,7 @@ public class SimpleFunctionExecutorTests {
     }
 
     @Test
-    public void test_execute_systemError() {
+    public void test_execute_systemError() throws DispatchException {
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction, executorService);
         String actual = principal.execute("{");
 
@@ -132,7 +115,7 @@ public class SimpleFunctionExecutorTests {
     }
 
     @Test
-    public void test_execute_functionError() {
+    public void test_execute_functionError() throws DispatchException {
         BiFunction<Map<String, Object>, Map<String, Object>, String> failFunction = new Fail();
 
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(failFunction, executorService);
@@ -142,65 +125,12 @@ public class SimpleFunctionExecutorTests {
     }
 
     @Test
-    public void test_execute_inputError() {
+    public void test_execute_inputError() throws DispatchException {
         BiFunction<Map<String, Object>, Map<String, Object>, String> lowerFunction = new Lower();
 
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(lowerFunction, executorService);
 
         String actual = principal.execute("{\"context\": null, \"payload\": {\"name\": 1}}");
         assertTrue(actual.contains(ErrorType.INPUT_ERROR.toString()));
-    }
-
-    @Test
-    public void test_withTimeout_noTimeout() throws DispatchException {
-        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction, executorService);
-
-        HashMap<Object, Object> context = new HashMap<Object, Object>();
-        context.put("timeout", 0.0);
-
-        HashMap<Object, Object> payload = new HashMap<Object, Object>();
-        payload.put("name", "Jon");
-        payload.put("place", "Winterfell");
-
-        Object actual = principal.withTimeout(helloFunction, context, payload);
-
-        assertEquals("Hello, Jon from Winterfell", actual, "Did not receive expected function execution result.");
-    }
-
-    @Test
-    public void test_withTimeout_TimeoutException() throws Exception {
-        Future future = Mockito.mock(Future.class);
-        when(future.get(eq(2000l), eq(TimeUnit.MILLISECONDS))).thenThrow(TimeoutException.class);
-
-        ExecutorService execService = Mockito.mock(ExecutorService.class);
-        when(execService.submit(any(Callable.class))).thenReturn(future);
-
-        HashMap<Object, Object> context = new HashMap<Object, Object>();
-        context.put("timeout", 2000.0);
-
-        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction, execService);
-
-        assertThrows(DispatchException.class, () -> principal.withTimeout(helloFunction, context, Collections.emptyMap()));
-        verify(future, times(1)).get(eq(2000l), eq(TimeUnit.MILLISECONDS));
-        verify(future, never()).get();
-        verify(future, times(1)).cancel(eq(true));
-    }
-
-    @Test
-    public void test_withTimeout_ExecutionException() throws Exception {
-        Future future = Mockito.mock(Future.class);
-        when(future.get()).thenThrow(ExecutionException.class);
-
-        ExecutorService execService = Mockito.mock(ExecutorService.class);
-        when(execService.submit(any(Callable.class))).thenReturn(future);
-
-        HashMap<Object, Object> context = new HashMap<Object, Object>();
-        context.put("timeout", 0.0);
-
-        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction, execService);
-
-        assertThrows(DispatchException.class, () -> principal.withTimeout(helloFunction, context, Collections.emptyMap()));
-        verify(future, times(1)).get();
-        verify(future, times(1)).cancel(eq(true));
     }
 }

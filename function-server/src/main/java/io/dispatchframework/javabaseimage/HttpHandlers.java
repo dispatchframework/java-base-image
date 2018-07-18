@@ -37,7 +37,13 @@ public final class HttpHandlers {
         @Override
         public void handleRequest(final HttpServerExchange exchange) {
             exchange.getRequestReceiver().receiveFullString((httpServerExchange, message) -> {
-                String response = executor.execute(message);
+                String response = "";
+                try {
+                    response = executor.execute(message);
+                } catch (DispatchException e) {
+                    response =  e.getError();
+                    httpServerExchange.setStatusCode(e.getStatusCode());
+                }
                 httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
                 httpServerExchange.getResponseSender().send(response);
             }, HttpHandlers::receiverErrorCallback);

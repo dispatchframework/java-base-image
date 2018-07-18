@@ -23,7 +23,7 @@ WORKDIR /function-server
 RUN mvn install && cd cp-gen && mvn dependency:build-classpath -Dmdep.outputFile=../cp.txt
 
 
-ENV WORKDIR=/function PORT=8080
+ENV WORKDIR=/function PORT=8080 SERVERS=1 SERVER_CMD="java -cp target/classes:$(<./cp.txt):$(</function-server/cp.txt) io.dispatchframework.javabaseimage.Entrypoint $(cat /tmp/handler)"
 
 EXPOSE ${PORT}
 WORKDIR ${WORKDIR}
@@ -31,4 +31,4 @@ WORKDIR ${WORKDIR}
 # OpenFaaS readiness check depends on this file
 RUN touch /tmp/.lock
 
-CMD java -cp target/classes:$(<./cp.txt):$(</function-server/cp.txt) io.dispatchframework.javabaseimage.Entrypoint $(cat /tmp/handler)
+CMD funky

@@ -47,56 +47,39 @@ public class SimpleFunctionExecutor implements FunctionExecutor {
     }
 
     @Override
-    public String execute(String message) {
+    public String execute(String message) throws DispatchException {
         Request req = null;
         Object r = null;
         Error err = null;
         String jsonResponse;
 
-        // Closing a ByteArrayOutputStream has no effect
-        ByteArrayOutputStream baosStderr = new ByteArrayOutputStream();
-        ByteArrayOutputStream baosStdout = new ByteArrayOutputStream();
-
-        PrintStream oldStderr = System.err;
-        PrintStream oldStdout = System.out;
-
-        try (PrintStream stderr = new PrintStream(baosStderr); PrintStream stdout = new PrintStream(baosStdout)) {
+        try {
             try {
-                System.setErr(stderr);
-                System.setOut(stdout);
-
                 req = getRequest(message);
             } catch (Exception ex) {
                 // If misaligned json type to BiFunction type
                 if (ex.getCause() instanceof IllegalStateException) {
                     err = new Error(ex, ErrorType.INPUT_ERROR);
+                    throw new DispatchException(402, gson.toJson(err));
                 } else {
                     err = new Error(ex, ErrorType.SYSTEM_ERROR);
+                    throw new DispatchException(500, gson.toJson(err));
                 }
-                ex.printStackTrace();
             }
 
             if (err == null) {
                 try {
-                    r = withTimeout(f, req.getContext(), req.getPayload());
-                } catch (DispatchException e) {
-                    err = e.getError();
+                    r = f.apply(req.getContext(), req.getPayload());
+                } catch (IllegalArgumentException e) {
+                    err = new Error(e, ErrorType.INPUT_ERROR);
+                    throw new DispatchException(422, gson.toJson(err));
+                } catch (Exception e) {
+                    err = new Error(e, ErrorType.FUNCTION_ERROR);
+                    throw new DispatchException(502, gson.toJson(err));
                 }
             }
         } finally {
-            System.err.flush();
-            System.setErr(oldStderr);
-
-            System.out.flush();
-            System.setOut(oldStdout);
-
-            String[] stdoutLogs = baosStdout.toString().length() > 0 ? baosStdout.toString().split("\\r?\\n")
-                    : new String[0];
-            String[] stderrLogs = baosStderr.toString().length() > 0 ? baosStderr.toString().split("\\r?\\n")
-                    : new String[0];
-            Response response = new Response(new Context(err, new Logs(stderrLogs, stdoutLogs)), r);
-
-            jsonResponse = gson.toJson(response);
+            jsonResponse = gson.toJson(r);
         }
 
         return jsonResponse;
@@ -125,37 +108,5 @@ public class SimpleFunctionExecutor implements FunctionExecutor {
         }
 
         return genericTypes;
-    }
-
-    public Object withTimeout(BiFunction f, Object context, Object payload) throws DispatchException {
-        Double timeout = context == null ? 0.0 :  (Double) ((Map<Object, Object>) context).getOrDefault("timeout", 0.0);
-        Callable<Object> callable = () -> {
-            return f.apply(context, payload);
-        };
-
-        Future<Object> future = executorService.submit(callable);
-        try {
-            if (timeout == 0) {
-                return future.get();
-            } else {
-                return future.get(timeout.longValue(), TimeUnit.MILLISECONDS);
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            throw new DispatchException(new Error(e, ErrorType.SYSTEM_ERROR));
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-            if (e.getCause() instanceof IllegalArgumentException) {
-                throw new DispatchException(new Error(e, ErrorType.INPUT_ERROR));
-            } else {
-                throw new DispatchException(new Error(e, ErrorType.FUNCTION_ERROR));
-            }
-        } catch (TimeoutException e) {
-            Entrypoint.healthy = false;
-            e.printStackTrace();
-            throw new DispatchException(new Error(e, ErrorType.FUNCTION_ERROR));
-        } finally {
-            future.cancel(true);
-        }
     }
 }
