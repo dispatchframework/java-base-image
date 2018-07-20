@@ -74,7 +74,7 @@ public class SimpleFunctionExecutorTests {
 
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(successFunction, executorService);
 
-        String expected = "{\"context\":{\"error\":null,\"logs\":{\"stderr\":[],\"stdout\":[]}},\"payload\":\"The content-type is: application/json, with payload: test\"}";
+        String expected = "\"The content-type is: application/json, with payload: test\"";
         String actual = principal.execute("{\"context\" : { \"content-type\" : \"application/json\", \"timeout\" : 0.0}, \"payload\" : \"test\"}");
         assertEquals(expected, actual);
     }
@@ -83,7 +83,7 @@ public class SimpleFunctionExecutorTests {
     public void test_execute_empty() throws DispatchException {
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction, executorService);
 
-        String expected = "{\"context\":{\"error\":null,\"logs\":{\"stderr\":[],\"stdout\":[]}},\"payload\":\"Hello, Someone from Somewhere\"}";
+        String expected = "\"Hello, Someone from Somewhere\"";
         String actual = principal.execute("{}");
         assertEquals(expected, actual);
     }
@@ -92,45 +92,56 @@ public class SimpleFunctionExecutorTests {
     public void test_execute_logging() throws DispatchException {
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(new Logger(), executorService);
 
-        String expected = "{\"context\":{\"error\":null,\"logs\":{\"stderr\":[\"stderr\",\"stderr2\"],\"stdout\":[\"stdout\",\"stdout2\"]}},\"payload\":\"\"}";
+        String expected = "\"\"";
         String actual = principal.execute("{\"context\": null, \"payload\": null}");
         assertEquals(expected, actual);
     }
 
     @Test
-    public void test_execute_mismatchedPayload() throws DispatchException {
+    public void test_execute_mismatchedPayload() {
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction, executorService);
 
         String message = "{\"context\": null, \"payload\": \"invalid\"}";
-        String actual = principal.execute(message);
-        assertTrue(actual.contains(ErrorType.INPUT_ERROR.toString()));
+        try {
+            principal.execute(message);
+        } catch (DispatchException e) {
+            assertTrue(e.getError().contains(ErrorType.INPUT_ERROR.toString()));
+        }
     }
 
     @Test
-    public void test_execute_systemError() throws DispatchException {
+    public void test_execute_systemError() {
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction, executorService);
-        String actual = principal.execute("{");
-
-        assertTrue(actual.contains(ErrorType.SYSTEM_ERROR.toString()));
+        try {
+            principal.execute("{");
+        } catch (DispatchException e) {
+            assertTrue(e.getError().contains(ErrorType.SYSTEM_ERROR.toString()));
+        }
     }
 
     @Test
-    public void test_execute_functionError() throws DispatchException {
+    public void test_execute_functionError() {
         BiFunction<Map<String, Object>, Map<String, Object>, String> failFunction = new Fail();
 
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(failFunction, executorService);
 
-        String actual = principal.execute("{}");
-        assertTrue(actual.contains(ErrorType.FUNCTION_ERROR.toString()));
+        try {
+            principal.execute("{}");
+        } catch (DispatchException e) {
+            assertTrue(e.getError().contains(ErrorType.FUNCTION_ERROR.toString()));
+        }
     }
 
     @Test
-    public void test_execute_inputError() throws DispatchException {
+    public void test_execute_inputError() {
         BiFunction<Map<String, Object>, Map<String, Object>, String> lowerFunction = new Lower();
 
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(lowerFunction, executorService);
 
-        String actual = principal.execute("{\"context\": null, \"payload\": {\"name\": 1}}");
-        assertTrue(actual.contains(ErrorType.INPUT_ERROR.toString()));
+        try {
+            principal.execute("{\"context\": null, \"payload\": {\"name\": 1}}");
+        } catch (DispatchException e) {
+            assertTrue(e.getError().contains(ErrorType.INPUT_ERROR.toString()));
+        }
     }
 }
