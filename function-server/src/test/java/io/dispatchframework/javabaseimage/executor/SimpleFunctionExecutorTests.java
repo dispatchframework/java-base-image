@@ -29,12 +29,10 @@ import io.dispatchframework.javabaseimage.SimpleFunctionExecutor;
 public class SimpleFunctionExecutorTests {
 
     private static BiFunction<Map<String, Object>, Map<String, Object>, String> helloFunction;
-    private static ExecutorService executorService;
 
     @BeforeAll
     private static void setup() {
         helloFunction = new Hello();
-        executorService = Executors.newSingleThreadExecutor();
     }
 
     @Test
@@ -48,7 +46,7 @@ public class SimpleFunctionExecutorTests {
 
         };
 
-        SimpleFunctionExecutor executor = new SimpleFunctionExecutor(principal, executorService);
+        SimpleFunctionExecutor executor = new SimpleFunctionExecutor(principal);
 
         assertNotNull(executor);
     }
@@ -57,7 +55,7 @@ public class SimpleFunctionExecutorTests {
     public void test_constructor_illegalBiFunction() {
         BiFunction principal = (a, b) -> "";
 
-        assertThrows(IllegalArgumentException.class, () -> new SimpleFunctionExecutor(principal, executorService));
+        assertThrows(IllegalArgumentException.class, () -> new SimpleFunctionExecutor(principal));
     }
 
     @Test
@@ -72,7 +70,7 @@ public class SimpleFunctionExecutorTests {
 
         };
 
-        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(successFunction, executorService);
+        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(successFunction);
 
         String expected = "\"The content-type is: application/json, with payload: test\"";
         String actual = principal.execute("{\"context\" : { \"content-type\" : \"application/json\", \"timeout\" : 0.0}, \"payload\" : \"test\"}");
@@ -81,7 +79,7 @@ public class SimpleFunctionExecutorTests {
 
     @Test
     public void test_execute_empty() throws DispatchException {
-        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction, executorService);
+        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction);
 
         String expected = "\"Hello, Someone from Somewhere\"";
         String actual = principal.execute("{}");
@@ -90,7 +88,7 @@ public class SimpleFunctionExecutorTests {
 
     @Test
     public void test_execute_logging() throws DispatchException {
-        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(new Logger(), executorService);
+        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(new Logger());
 
         String expected = "\"\"";
         String actual = principal.execute("{\"context\": null, \"payload\": null}");
@@ -99,7 +97,7 @@ public class SimpleFunctionExecutorTests {
 
     @Test
     public void test_execute_mismatchedPayload() {
-        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction, executorService);
+        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction);
 
         String message = "{\"context\": null, \"payload\": \"invalid\"}";
         try {
@@ -111,7 +109,7 @@ public class SimpleFunctionExecutorTests {
 
     @Test
     public void test_execute_systemError() {
-        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction, executorService);
+        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction);
         try {
             principal.execute("{");
         } catch (DispatchException e) {
@@ -123,7 +121,7 @@ public class SimpleFunctionExecutorTests {
     public void test_execute_functionError() {
         BiFunction<Map<String, Object>, Map<String, Object>, String> failFunction = new Fail();
 
-        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(failFunction, executorService);
+        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(failFunction);
 
         try {
             principal.execute("{}");
@@ -136,7 +134,7 @@ public class SimpleFunctionExecutorTests {
     public void test_execute_inputError() {
         BiFunction<Map<String, Object>, Map<String, Object>, String> lowerFunction = new Lower();
 
-        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(lowerFunction, executorService);
+        SimpleFunctionExecutor principal = new SimpleFunctionExecutor(lowerFunction);
 
         try {
             principal.execute("{\"context\": null, \"payload\": {\"name\": 1}}");

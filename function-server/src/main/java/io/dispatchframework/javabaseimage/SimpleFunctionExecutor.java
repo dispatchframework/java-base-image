@@ -33,11 +33,9 @@ public class SimpleFunctionExecutor implements FunctionExecutor {
 
     private BiFunction f;
     private Type[] biFunctionTypes;
-    private ExecutorService executorService;
 
-    public SimpleFunctionExecutor(BiFunction f, ExecutorService executorService) {
+    public SimpleFunctionExecutor(BiFunction f) {
         this.f = f;
-        this.executorService = executorService;
 
         this.biFunctionTypes = getBiFunctionTypes(f.getClass());
         if (biFunctionTypes == null || biFunctionTypes.length != 3) {

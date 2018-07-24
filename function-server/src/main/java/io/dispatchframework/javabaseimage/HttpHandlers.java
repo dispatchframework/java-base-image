@@ -31,7 +31,7 @@ public final class HttpHandlers {
         public ExecFunction(Class handler)
                 throws InstantiationException, IllegalAccessException {
             this.f = (BiFunction) handler.newInstance();
-            executor = new SimpleFunctionExecutor(f, Executors.newSingleThreadExecutor());
+            executor = new SimpleFunctionExecutor(f);
         }
 
         @Override

@@ -17,7 +17,12 @@ public class Entrypoint {
 
         Class<?> c = Class.forName(args[0]);
 
-        Server server = (isSpringAnnotated(c) ? new SpringFunctionServer(c) : new POJFunctionServer(c));
+        int port = 8080;
+        if (System.getenv().containsKey("PORT")) {
+            port = Integer.valueOf(System.getenv().get("PORT"));
+        }
+
+        Server server = (isSpringAnnotated(c) ? new SpringFunctionServer(c) : new POJFunctionServer(port, c));
 
         try {
             System.err.printf("Starting Function Server for '%s'\n", args[0]);
