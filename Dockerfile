@@ -29,8 +29,8 @@ ENV WORKDIR=/function PORT=8080 SERVERS=$servers
 EXPOSE ${PORT}
 WORKDIR ${WORKDIR}
 
-RUN curl -L https://github.com/dispatchframework/funky/releases/download/0.1.0/funky0.1.0.linux-amd64.tgz -o funky0.1.0.linux-amd64.tgz
-RUN tar -xzf funky0.1.0.linux-amd64.tgz
+RUN curl -L https://github.com/dispatchframework/funky/releases/download/0.1.1/funky0.1.1.linux-amd64.tgz -o funky0.1.1.linux-amd64.tgz
+RUN tar -xzf funky0.1.1.linux-amd64.tgz
 
 # OpenFaaS readiness check depends on this file
 RUN touch /tmp/.lock
