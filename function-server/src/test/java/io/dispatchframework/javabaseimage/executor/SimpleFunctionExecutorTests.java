@@ -9,8 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
 
 import io.dispatchframework.javabaseimage.handlers.Logger;
@@ -53,7 +51,7 @@ public class SimpleFunctionExecutorTests {
 
     @Test
     public void test_constructor_illegalBiFunction() {
-        BiFunction principal = (a, b) -> "";
+        BiFunction<?, ?, ?> principal = (a, b) -> "";
 
         assertThrows(IllegalArgumentException.class, () -> new SimpleFunctionExecutor(principal));
     }
@@ -100,21 +98,15 @@ public class SimpleFunctionExecutorTests {
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction);
 
         String message = "{\"context\": null, \"payload\": \"invalid\"}";
-        try {
-            principal.execute(message);
-        } catch (DispatchException e) {
-            assertTrue(e.getError().contains(ErrorType.INPUT_ERROR.toString()));
-        }
+        DispatchException e = assertThrows(DispatchException.class, () -> principal.execute(message));
+        assertTrue(e.getError().contains(ErrorType.INPUT_ERROR.toString()));
     }
 
     @Test
     public void test_execute_systemError() {
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(helloFunction);
-        try {
-            principal.execute("{");
-        } catch (DispatchException e) {
-            assertTrue(e.getError().contains(ErrorType.SYSTEM_ERROR.toString()));
-        }
+        DispatchException e = assertThrows(DispatchException.class, () -> principal.execute("{"));
+        assertTrue(e.getError().contains(ErrorType.SYSTEM_ERROR.toString()));
     }
 
     @Test
@@ -123,11 +115,8 @@ public class SimpleFunctionExecutorTests {
 
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(failFunction);
 
-        try {
-            principal.execute("{}");
-        } catch (DispatchException e) {
-            assertTrue(e.getError().contains(ErrorType.FUNCTION_ERROR.toString()));
-        }
+        DispatchException e = assertThrows(DispatchException.class, () -> principal.execute("{}"));
+        assertTrue(e.getError().contains(ErrorType.FUNCTION_ERROR.toString()));
     }
 
     @Test
@@ -136,10 +125,7 @@ public class SimpleFunctionExecutorTests {
 
         SimpleFunctionExecutor principal = new SimpleFunctionExecutor(lowerFunction);
 
-        try {
-            principal.execute("{\"context\": null, \"payload\": {\"name\": 1}}");
-        } catch (DispatchException e) {
-            assertTrue(e.getError().contains(ErrorType.INPUT_ERROR.toString()));
-        }
+        DispatchException e = assertThrows(DispatchException.class, () -> principal.execute("{\"context\": null, \"payload\": {\"name\": 1}}"));
+        assertTrue(e.getError().contains(ErrorType.INPUT_ERROR.toString()));
     }
 }

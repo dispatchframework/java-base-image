@@ -11,18 +11,11 @@ import org.springframework.context.annotation.Configuration;
  */
 public class Entrypoint {
 
-    public static volatile boolean healthy = true;
-
     public static void main(String[] args) throws Exception {
 
         Class<?> c = Class.forName(args[0]);
 
-        int port = 8080;
-        if (System.getenv().containsKey("PORT")) {
-            port = Integer.valueOf(System.getenv().get("PORT"));
-        }
-
-        Server server = (isSpringAnnotated(c) ? new SpringFunctionServer(c) : new POJFunctionServer(port, c));
+        Server server = (isSpringAnnotated(c) ? new SpringFunctionServer(c) : new POJFunctionServer(c));
 
         try {
             System.err.printf("Starting Function Server for '%s'\n", args[0]);

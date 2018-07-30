@@ -5,7 +5,6 @@
 package io.dispatchframework.javabaseimage;
 
 import java.io.IOException;
-import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
 
 import com.google.gson.Gson;
@@ -25,12 +24,12 @@ public final class HttpHandlers {
      * HttpHandler for executing functions with request params
      */
     public static class ExecFunction implements HttpHandler {
-        final BiFunction f;
+        final BiFunction<?, ?, ?> f;
         final FunctionExecutor executor;
 
-        public ExecFunction(Class handler)
+        public ExecFunction(Class<?> handler)
                 throws InstantiationException, IllegalAccessException {
-            this.f = (BiFunction) handler.newInstance();
+            this.f = (BiFunction<?, ?, ?>) handler.newInstance();
             executor = new SimpleFunctionExecutor(f);
         }
 
@@ -57,9 +56,6 @@ public final class HttpHandlers {
         @Override
         public void handleRequest(final HttpServerExchange exchange) {
             exchange.getRequestReceiver().receiveFullString((httpServerExchange, message) -> {
-                if (!Entrypoint.healthy) {
-                    httpServerExchange.setStatusCode(500);
-                }
                 String jsonResponse = "{}";
                 httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
                 httpServerExchange.getResponseSender().send(jsonResponse);

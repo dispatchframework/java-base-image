@@ -23,7 +23,7 @@ public class SpringFunctionServlet extends HttpServlet {
 
     private FunctionExecutor executor;
 
-    public SpringFunctionServlet(BiFunction f) {
+    public SpringFunctionServlet(BiFunction<?, ?, ?> f) {
         this.executor = new SimpleFunctionExecutor(f);
     }
 

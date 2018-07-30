@@ -4,18 +4,8 @@
 ///////////////////////////////////////////////////////////////////////
 package io.dispatchframework.javabaseimage;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
 
 import com.google.gson.Gson;
@@ -34,7 +24,7 @@ public class SimpleFunctionExecutor implements FunctionExecutor {
     private BiFunction f;
     private Type[] biFunctionTypes;
 
-    public SimpleFunctionExecutor(BiFunction f) {
+    public SimpleFunctionExecutor(BiFunction<?, ?, ?> f) {
         this.f = f;
 
         this.biFunctionTypes = getBiFunctionTypes(f.getClass());
@@ -52,33 +42,29 @@ public class SimpleFunctionExecutor implements FunctionExecutor {
         String jsonResponse;
 
         try {
-            try {
-                req = getRequest(message);
-            } catch (Exception ex) {
-                // If misaligned json type to BiFunction type
-                if (ex.getCause() instanceof IllegalStateException) {
-                    err = new Error(ex, ErrorType.INPUT_ERROR);
-                    throw new DispatchException(402, gson.toJson(err));
-                } else {
-                    err = new Error(ex, ErrorType.SYSTEM_ERROR);
-                    throw new DispatchException(500, gson.toJson(err));
-                }
+            req = getRequest(message);
+        } catch (Exception ex) {
+            // If misaligned json type to BiFunction type
+            if (ex.getCause() instanceof IllegalStateException) {
+                err = new Error(ex, ErrorType.INPUT_ERROR);
+                throw new DispatchException(402, gson.toJson(err));
+            } else {
+                err = new Error(ex, ErrorType.SYSTEM_ERROR);
+                throw new DispatchException(500, gson.toJson(err));
             }
-
-            if (err == null) {
-                try {
-                    r = f.apply(req.getContext(), req.getPayload());
-                } catch (IllegalArgumentException e) {
-                    err = new Error(e, ErrorType.INPUT_ERROR);
-                    throw new DispatchException(422, gson.toJson(err));
-                } catch (Exception e) {
-                    err = new Error(e, ErrorType.FUNCTION_ERROR);
-                    throw new DispatchException(502, gson.toJson(err));
-                }
-            }
-        } finally {
-            jsonResponse = gson.toJson(r);
         }
+
+        try {
+            r = f.apply(req.getContext(), req.getPayload());
+        } catch (IllegalArgumentException e) {
+            err = new Error(e, ErrorType.INPUT_ERROR);
+            throw new DispatchException(422, gson.toJson(err));
+        } catch (Exception e) {
+            err = new Error(e, ErrorType.FUNCTION_ERROR);
+            throw new DispatchException(502, gson.toJson(err));
+        }
+
+        jsonResponse = gson.toJson(r);
 
         return jsonResponse;
     }

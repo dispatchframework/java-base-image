@@ -29,7 +29,7 @@ import io.undertow.servlet.util.ImmediateInstanceFactory;
 public class DispatchSpringConfig {
 
     @Bean("springServlet")
-    Servlet springServlet(BiFunction f) {
+    Servlet springServlet(BiFunction<?, ?, ?> f) {
         return new SpringFunctionServlet(f);
     }
 
