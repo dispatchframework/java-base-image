@@ -4,8 +4,6 @@
 ///////////////////////////////////////////////////////////////////////
 package io.dispatchframework.javabaseimage;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.function.BiFunction;
@@ -26,7 +24,7 @@ public class SimpleFunctionExecutor implements FunctionExecutor {
     private BiFunction f;
     private Type[] biFunctionTypes;
 
-    public SimpleFunctionExecutor(BiFunction f) {
+    public SimpleFunctionExecutor(BiFunction<?, ?, ?> f) {
         this.f = f;
 
         this.biFunctionTypes = getBiFunctionTypes(f.getClass());
@@ -37,61 +35,36 @@ public class SimpleFunctionExecutor implements FunctionExecutor {
     }
 
     @Override
-    public String execute(String message) {
+    public String execute(String message) throws DispatchException {
         Request req = null;
         Object r = null;
         Error err = null;
         String jsonResponse;
 
-        // Closing a ByteArrayOutputStream has no effect
-        ByteArrayOutputStream baosStderr = new ByteArrayOutputStream();
-        ByteArrayOutputStream baosStdout = new ByteArrayOutputStream();
-
-        PrintStream oldStderr = System.err;
-        PrintStream oldStdout = System.out;
-
-        try (PrintStream stderr = new PrintStream(baosStderr); PrintStream stdout = new PrintStream(baosStdout)) {
-            try {
-                System.setErr(stderr);
-                System.setOut(stdout);
-
-                req = getRequest(message);
-            } catch (Exception ex) {
-                // If misaligned json type to BiFunction type
-                if (ex.getCause() instanceof IllegalStateException) {
-                    err = new Error(ex, ErrorType.INPUT_ERROR);
-                } else {
-                    err = new Error(ex, ErrorType.SYSTEM_ERROR);
-                }
-                ex.printStackTrace();
+        try {
+            req = getRequest(message);
+        } catch (Exception ex) {
+            // If misaligned json type to BiFunction type
+            if (ex.getCause() instanceof IllegalStateException) {
+                err = new Error(ex, ErrorType.INPUT_ERROR);
+                throw new DispatchException(402, gson.toJson(err));
+            } else {
+                err = new Error(ex, ErrorType.SYSTEM_ERROR);
+                throw new DispatchException(500, gson.toJson(err));
             }
-
-            if (err == null) {
-                try {
-                    r = f.apply(req.getContext(), req.getPayload());
-                } catch (IllegalArgumentException ex) {
-                    err = new Error(ex, ErrorType.INPUT_ERROR);
-                    ex.printStackTrace();
-                } catch (Exception ex) {
-                    err = new Error(ex, ErrorType.FUNCTION_ERROR);
-                    ex.printStackTrace();
-                }
-            }
-        } finally {
-            System.err.flush();
-            System.setErr(oldStderr);
-
-            System.out.flush();
-            System.setOut(oldStdout);
-
-            String[] stdoutLogs = baosStdout.toString().length() > 0 ? baosStdout.toString().split("\\r?\\n")
-                    : new String[0];
-            String[] stderrLogs = baosStderr.toString().length() > 0 ? baosStderr.toString().split("\\r?\\n")
-                    : new String[0];
-            Response response = new Response(new Context(err, new Logs(stderrLogs, stdoutLogs)), r);
-
-            jsonResponse = gson.toJson(response);
         }
+
+        try {
+            r = f.apply(req.getContext(), req.getPayload());
+        } catch (IllegalArgumentException e) {
+            err = new Error(e, ErrorType.INPUT_ERROR);
+            throw new DispatchException(422, gson.toJson(err));
+        } catch (Exception e) {
+            err = new Error(e, ErrorType.FUNCTION_ERROR);
+            throw new DispatchException(502, gson.toJson(err));
+        }
+
+        jsonResponse = gson.toJson(r);
 
         return jsonResponse;
     }
@@ -120,5 +93,4 @@ public class SimpleFunctionExecutor implements FunctionExecutor {
 
         return genericTypes;
     }
-
 }

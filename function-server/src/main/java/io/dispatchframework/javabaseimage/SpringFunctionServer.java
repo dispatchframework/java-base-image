@@ -12,11 +12,11 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  */
 public class SpringFunctionServer implements Server {
 
-    private Class clazz;
+    private Class<?> clazz;
 
     private AnnotationConfigApplicationContext ctx;
 
-    public SpringFunctionServer(Class c) {
+    public SpringFunctionServer(Class<?> c) {
         this.clazz = c;
     }
 

@@ -9,21 +9,21 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.function.BiFunction;
 
-import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Servlet implementation used to respond to Dispatch function execution
  * requests.
  */
-public class SpringFunctionServlet implements Servlet {
+public class SpringFunctionServlet extends HttpServlet {
 
     private FunctionExecutor executor;
 
-    public SpringFunctionServlet(BiFunction f) {
+    public SpringFunctionServlet(BiFunction<?, ?, ?> f) {
         this.executor = new SimpleFunctionExecutor(f);
     }
 
@@ -39,8 +39,33 @@ public class SpringFunctionServlet implements Servlet {
     }
 
     @Override
-    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-        String response = executor.execute(getBody(req));
+    public void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        doProcess(req, res);
+    }
+
+    @Override
+    public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        doProcess(req, res);
+    }
+
+    @Override
+    public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        doProcess(req, res);
+    }
+
+    @Override
+    public void doPut(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        doProcess(req, res);
+    }
+
+    private void doProcess(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String response = "";
+        try {
+            response = executor.execute(getBody(req));
+        } catch (DispatchException e) {
+            response = e.getError();
+            res.setStatus(e.getStatusCode());
+        }
 
         res.setContentType("application/json");
         try (Writer writer = res.getWriter()) {
@@ -58,7 +83,7 @@ public class SpringFunctionServlet implements Servlet {
         // No resources to release
     }
 
-    private String getBody(ServletRequest req) throws IOException {
+    private String getBody(HttpServletRequest req) throws IOException {
         StringBuffer sb = new StringBuffer();
 
         try (Reader reader = req.getReader()) {

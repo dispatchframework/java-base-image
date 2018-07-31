@@ -10,6 +10,7 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -28,7 +29,7 @@ import io.undertow.servlet.util.ImmediateInstanceFactory;
 public class DispatchSpringConfig {
 
     @Bean("springServlet")
-    Servlet springServlet(BiFunction f) {
+    Servlet springServlet(BiFunction<?, ?, ?> f) {
         return new SpringFunctionServlet(f);
     }
 
@@ -56,10 +57,13 @@ public class DispatchSpringConfig {
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Undertow undertow(DeploymentManager manager) throws ServletException {
+    Undertow undertow(DeploymentManager manager, @Value("${PORT:8080}") int port) throws ServletException {
 
         PathHandler path = Handlers.path(Handlers.redirect("/")).addPrefixPath("/", manager.start());
 
-        return Undertow.builder().addHttpListener(8080, "0.0.0.0").setHandler(path).build();
+        if (port == 0) {
+            port = 8080;
+        }
+        return Undertow.builder().addHttpListener(port, "0.0.0.0").setHandler(path).build();
     }
 }

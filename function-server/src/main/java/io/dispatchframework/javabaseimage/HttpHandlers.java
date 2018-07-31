@@ -24,19 +24,25 @@ public final class HttpHandlers {
      * HttpHandler for executing functions with request params
      */
     public static class ExecFunction implements HttpHandler {
-        final BiFunction f;
+        final BiFunction<?, ?, ?> f;
         final FunctionExecutor executor;
 
-        public ExecFunction(Class handler)
+        public ExecFunction(Class<?> handler)
                 throws InstantiationException, IllegalAccessException {
-            this.f = (BiFunction) handler.newInstance();
+            this.f = (BiFunction<?, ?, ?>) handler.newInstance();
             executor = new SimpleFunctionExecutor(f);
         }
 
         @Override
         public void handleRequest(final HttpServerExchange exchange) {
             exchange.getRequestReceiver().receiveFullString((httpServerExchange, message) -> {
-                String response = executor.execute(message);
+                String response = "";
+                try {
+                    response = executor.execute(message);
+                } catch (DispatchException e) {
+                    response =  e.getError();
+                    httpServerExchange.setStatusCode(e.getStatusCode());
+                }
                 httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
                 httpServerExchange.getResponseSender().send(response);
             }, HttpHandlers::receiverErrorCallback);

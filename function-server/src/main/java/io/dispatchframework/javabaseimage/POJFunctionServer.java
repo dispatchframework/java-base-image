@@ -14,8 +14,13 @@ import io.undertow.Undertow;
 public class POJFunctionServer implements Server {
     private Undertow undertow;
 
-    public POJFunctionServer(Class handler) throws Exception {
-        undertow = Undertow.builder().addHttpListener(8080, "0.0.0.0").setHandler(Handlers.path()
+    public POJFunctionServer(Class<?> handler) throws Exception {
+        int port = 8080;
+        if (System.getenv().containsKey("PORT")) {
+            port = Integer.valueOf(System.getenv().get("PORT"));
+        }
+
+        undertow = Undertow.builder().addHttpListener(port, "0.0.0.0").setHandler(Handlers.path()
                 .addPrefixPath("/", new HttpHandlers.ExecFunction(handler)).addExactPath("/healthz", new HttpHandlers.Healthz()))
                 .build();
     }
