@@ -24,7 +24,7 @@ WORKDIR /function-server
 RUN mvn install && cd cp-gen && mvn dependency:build-classpath -Dmdep.outputFile=../cp.txt
 
 
-ENV WORKDIR=/function PORT=8080 SERVERS=$servers FUNKY_VERSION=0.1.1
+ENV WORKDIR=/function PORT=8080 SERVERS=$servers FUNKY_VERSION=0.1.2
 
 EXPOSE ${PORT}
 WORKDIR ${WORKDIR}
