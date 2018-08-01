@@ -329,3 +329,23 @@ Finally we can execute this function the same way as above
 ```bash
 $ dispatch exec --json --input '{"name": "Jon"}' --wait spring-fn
 ```
+
+## Running Tests
+
+Unit tests are written using `JUnit` for both `function-server` and `validator`.
+
+To run `function-server` tests:
+```bash
+$ pwd
+/java-base-image/function-server
+$ mvn test
+```
+
+To run `validator` tests, you must first generate the `function-server` test-jar before running the `validator` tests:
+```bash
+$ ls
+Dockerfile        README.md         ci                function-template validator
+LICENSE           build.sh          function-server   image-template    version.txt
+$ mvn -f ./function-server/pom.xml install
+$ mvn -f ./validator/pom.xml test
+```
